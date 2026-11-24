@@ -789,6 +789,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not export diagnostic logs.'**
   String get diagnosticsExportFailed;
+
+  /// Screen title / accessibility label for the full audio player.
+  ///
+  /// In en, this message translates to:
+  /// **'Now Playing'**
+  String get playerTitle;
+
+  /// Empty state title on the full player when no book is loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing playing right now'**
+  String get playerNoActiveBook;
+
+  /// Empty state subtitle on the full player.
+  ///
+  /// In en, this message translates to:
+  /// **'Select any audiobook from your library to begin listening.'**
+  String get playerNoActiveBookBody;
+
+  /// Play button tooltip/label.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get playerPlay;
+
+  /// Pause button tooltip/label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get playerPause;
+
+  /// Rewind transport button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewind {seconds}s'**
+  String playerRewindSeconds(int seconds);
+
+  /// Fast-forward transport button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward {seconds}s'**
+  String playerForwardSeconds(int seconds);
+
+  /// Previous chapter button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous chapter'**
+  String get playerPreviousChapter;
+
+  /// Next chapter button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get playerNextChapter;
+
+  /// Scrubber mode chip for current chapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter'**
+  String get playerScrubChapter;
+
+  /// Scrubber mode chip for entire book.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Book'**
+  String get playerScrubBook;
+
+  /// Playback speed pill label.
+  ///
+  /// In en, this message translates to:
+  /// **'{speed}x'**
+  String playerSpeedLabel(String speed);
+
+  /// Playback speed bottom sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback speed'**
+  String get playerSpeedSheetTitle;
+
+  /// Skip silence toggle label inside speed/audio sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip silence'**
+  String get playerSkipSilenceLabel;
+
+  /// Skip silence toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim extended pauses between narration'**
+  String get playerSkipSilenceSubtitle;
+
+  /// Sleep timer action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer'**
+  String get playerSleepTimerLabel;
+
+  /// Sleep timer off label.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get playerSleepOff;
+
+  /// Sleep timer option for stopping at chapter boundary.
+  ///
+  /// In en, this message translates to:
+  /// **'End of chapter'**
+  String get playerSleepEndOfChapter;
+
+  /// Sleep timer duration option.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String playerSleepMinutes(int minutes);
+
+  /// Banner shown during sleep timer fade/grace window.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake phone to extend +{minutes} min'**
+  String playerSleepGraceHint(int minutes);
+
+  /// Chapters bottom sheet title and action button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get playerChaptersLabel;
+
+  /// Bookmarks bottom sheet title and action button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get playerBookmarksLabel;
+
+  /// Button to create a bookmark at the current position.
+  ///
+  /// In en, this message translates to:
+  /// **'Add bookmark'**
+  String get playerAddBookmark;
+
+  /// Input label for bookmark title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark title'**
+  String get playerBookmarkTitleLabel;
+
+  /// Input label for optional bookmark note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get playerBookmarkNoteLabel;
+
+  /// Confirm button for saving a bookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Save bookmark'**
+  String get playerSaveBookmark;
+
+  /// Empty state inside bookmarks sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks saved for this book yet.'**
+  String get playerNoBookmarks;
+
+  /// Playback history bottom sheet title and action button label.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get playerHistoryLabel;
+
+  /// Empty state inside playback history sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'No playback jumps recorded yet.'**
+  String get playerNoHistory;
+
+  /// Status chip/hint when smart rewind shifts resume position.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewound {seconds}s on resume'**
+  String playerSmartRewindApplied(int seconds);
+
+  /// Stream badge for direct file playback.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Stream'**
+  String get playerStreamDirect;
+
+  /// Stream badge for transcoded HLS playback.
+  ///
+  /// In en, this message translates to:
+  /// **'HLS Transcode'**
+  String get playerStreamHls;
+
+  /// Status text while player buffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffering…'**
+  String get playerBuffering;
+
+  /// Fallback error message when starting playback fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start audio playback.'**
+  String get playerPlaybackError;
+
+  /// History reason badge for initial playback start.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get playerHistoryReasonPlay;
+
+  /// History reason badge for manual seek.
+  ///
+  /// In en, this message translates to:
+  /// **'Scrubbed'**
+  String get playerHistoryReasonSeek;
+
+  /// History reason badge for chapter jump.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter'**
+  String get playerHistoryReasonChapter;
+
+  /// History reason badge for pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get playerHistoryReasonPause;
+
+  /// History reason badge for smart rewind.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart rewind'**
+  String get playerHistoryReasonRewind;
+
+  /// History reason badge for bookmark jump.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get playerHistoryReasonBookmark;
 }
 
 class _AppLocalizationsDelegate

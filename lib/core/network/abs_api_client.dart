@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shelf_plus/core/logging/app_logger.dart';
 import 'package:shelf_plus/core/network/abs_api_models.dart';
 import 'package:shelf_plus/core/network/abs_library_models.dart';
+import 'package:shelf_plus/core/network/abs_playback_models.dart';
 import 'package:shelf_plus/core/network/abs_url_builder.dart';
 import 'package:shelf_plus/core/network/auth_token_refresh_interceptor.dart';
 import 'package:shelf_plus/core/network/auth_tokens.dart';
@@ -407,6 +408,166 @@ class AbsApiClient {
           .toList(growable: false);
     } on AbsApiException {
       rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Starts a server playback session (`POST /api/items/:id/play`).
+  Future<AbsPlaybackSessionDto> startPlaybackSession({
+    required String baseUrl,
+    required String itemId,
+    required String deviceId,
+    bool forceDirectPlay = true,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/items/$itemId/play');
+
+    try {
+      final response = await _authenticatedDio.post<Map<String, dynamic>>(
+        url,
+        data: <String, Object?>{
+          'deviceInfo': <String, String>{
+            'clientName': 'Shelf Plus',
+            'deviceId': deviceId,
+          },
+          'supportedMimeTypes': const <String>[
+            'audio/flac',
+            'audio/mpeg',
+            'audio/mp4',
+            'audio/ogg',
+            'audio/aac',
+            'audio/x-m4a',
+            'audio/x-m4b',
+          ],
+          'forceDirectPlay': forceDirectPlay,
+          'mediaPlayer': 'just_audio',
+        },
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'Playback session response was empty.',
+        );
+      }
+      final session = AbsPlaybackSessionDto.fromJson(data);
+      if (session.sessionId.isEmpty || session.audioTracks.isEmpty) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'Playback session did not return playable audio tracks.',
+        );
+      }
+      return session;
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Reports active playback progress (`POST /api/session/:id/sync`).
+  Future<void> syncPlaybackSession({
+    required String baseUrl,
+    required String sessionId,
+    required double currentTimeSec,
+    required double timeListenedSec,
+    required double durationSec,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/session/$sessionId/sync',
+    );
+    try {
+      await _authenticatedDio.post<void>(
+        url,
+        data: <String, Object?>{
+          'currentTime': currentTimeSec,
+          'timeListened': timeListenedSec,
+          'duration': durationSec,
+        },
+      );
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Closes an active playback session (`POST /api/session/:id/close`).
+  Future<void> closePlaybackSession({
+    required String baseUrl,
+    required String sessionId,
+    required double currentTimeSec,
+    required double timeListenedSec,
+    required double durationSec,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/session/$sessionId/close',
+    );
+    try {
+      await _authenticatedDio.post<void>(
+        url,
+        data: <String, Object?>{
+          'currentTime': currentTimeSec,
+          'timeListened': timeListenedSec,
+          'duration': durationSec,
+        },
+      );
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Creates or updates a user bookmark (`POST /api/me/item/:id/bookmark`).
+  Future<AbsBookmarkDto> createBookmark({
+    required String baseUrl,
+    required String itemId,
+    required double timeSec,
+    required String title,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/me/item/$itemId/bookmark',
+    );
+    try {
+      final response = await _authenticatedDio.post<Map<String, dynamic>>(
+        url,
+        data: <String, Object?>{'time': timeSec, 'title': title},
+      );
+      final data = response.data;
+      if (data == null) {
+        return AbsBookmarkDto(
+          libraryItemId: itemId,
+          timeSec: timeSec,
+          title: title,
+          createdAtMs: DateTime.now().millisecondsSinceEpoch,
+        );
+      }
+      return AbsBookmarkDto.fromJson(data);
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Deletes a user bookmark (`DELETE /api/me/item/:id/bookmark/:time`).
+  Future<void> deleteBookmark({
+    required String baseUrl,
+    required String itemId,
+    required double timeSec,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final formattedTime = timeSec == timeSec.roundToDouble()
+        ? timeSec.toInt().toString()
+        : timeSec.toString();
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/me/item/$itemId/bookmark/$formattedTime',
+    );
+    try {
+      await _authenticatedDio.delete<void>(url);
     } on DioException catch (err) {
       throw _mapDioException(err);
     }

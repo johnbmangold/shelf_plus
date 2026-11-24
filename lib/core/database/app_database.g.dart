@@ -4644,6 +4644,438 @@ class CollectionsCompanion extends UpdateCompanion<Collection> {
   }
 }
 
+class $PlaybackHistoryEntriesTable extends PlaybackHistoryEntries
+    with TableInfo<$PlaybackHistoryEntriesTable, PlaybackHistoryEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlaybackHistoryEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _libraryItemIdMeta = const VerificationMeta(
+    'libraryItemId',
+  );
+  @override
+  late final GeneratedColumn<String> libraryItemId = GeneratedColumn<String>(
+    'library_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _positionSecMeta = const VerificationMeta(
+    'positionSec',
+  );
+  @override
+  late final GeneratedColumn<double> positionSec = GeneratedColumn<double>(
+    'position_sec',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMsMeta = const VerificationMeta(
+    'createdAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtMs = GeneratedColumn<int>(
+    'created_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    serverId,
+    libraryItemId,
+    positionSec,
+    reason,
+    createdAtMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'playback_history_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlaybackHistoryEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serverIdMeta);
+    }
+    if (data.containsKey('library_item_id')) {
+      context.handle(
+        _libraryItemIdMeta,
+        libraryItemId.isAcceptableOrUnknown(
+          data['library_item_id']!,
+          _libraryItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_libraryItemIdMeta);
+    }
+    if (data.containsKey('position_sec')) {
+      context.handle(
+        _positionSecMeta,
+        positionSec.isAcceptableOrUnknown(
+          data['position_sec']!,
+          _positionSecMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_positionSecMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_reasonMeta);
+    }
+    if (data.containsKey('created_at_ms')) {
+      context.handle(
+        _createdAtMsMeta,
+        createdAtMs.isAcceptableOrUnknown(
+          data['created_at_ms']!,
+          _createdAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlaybackHistoryEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlaybackHistoryEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      )!,
+      libraryItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}library_item_id'],
+      )!,
+      positionSec: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}position_sec'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      )!,
+      createdAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $PlaybackHistoryEntriesTable createAlias(String alias) {
+    return $PlaybackHistoryEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class PlaybackHistoryEntry extends DataClass
+    implements Insertable<PlaybackHistoryEntry> {
+  /// Auto-incrementing row ID.
+  final int id;
+
+  /// Owning server profile ID.
+  final String serverId;
+
+  /// Owning library item ID.
+  final String libraryItemId;
+
+  /// Playback position in seconds when the entry was recorded.
+  final double positionSec;
+
+  /// Event reason (`play`, `seek`, `chapter`, `pause`, `rewind`, `bookmark`).
+  final String reason;
+
+  /// UTC epoch milliseconds when the event occurred.
+  final int createdAtMs;
+  const PlaybackHistoryEntry({
+    required this.id,
+    required this.serverId,
+    required this.libraryItemId,
+    required this.positionSec,
+    required this.reason,
+    required this.createdAtMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['server_id'] = Variable<String>(serverId);
+    map['library_item_id'] = Variable<String>(libraryItemId);
+    map['position_sec'] = Variable<double>(positionSec);
+    map['reason'] = Variable<String>(reason);
+    map['created_at_ms'] = Variable<int>(createdAtMs);
+    return map;
+  }
+
+  PlaybackHistoryEntriesCompanion toCompanion(bool nullToAbsent) {
+    return PlaybackHistoryEntriesCompanion(
+      id: Value(id),
+      serverId: Value(serverId),
+      libraryItemId: Value(libraryItemId),
+      positionSec: Value(positionSec),
+      reason: Value(reason),
+      createdAtMs: Value(createdAtMs),
+    );
+  }
+
+  factory PlaybackHistoryEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlaybackHistoryEntry(
+      id: serializer.fromJson<int>(json['id']),
+      serverId: serializer.fromJson<String>(json['serverId']),
+      libraryItemId: serializer.fromJson<String>(json['libraryItemId']),
+      positionSec: serializer.fromJson<double>(json['positionSec']),
+      reason: serializer.fromJson<String>(json['reason']),
+      createdAtMs: serializer.fromJson<int>(json['createdAtMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'serverId': serializer.toJson<String>(serverId),
+      'libraryItemId': serializer.toJson<String>(libraryItemId),
+      'positionSec': serializer.toJson<double>(positionSec),
+      'reason': serializer.toJson<String>(reason),
+      'createdAtMs': serializer.toJson<int>(createdAtMs),
+    };
+  }
+
+  PlaybackHistoryEntry copyWith({
+    int? id,
+    String? serverId,
+    String? libraryItemId,
+    double? positionSec,
+    String? reason,
+    int? createdAtMs,
+  }) => PlaybackHistoryEntry(
+    id: id ?? this.id,
+    serverId: serverId ?? this.serverId,
+    libraryItemId: libraryItemId ?? this.libraryItemId,
+    positionSec: positionSec ?? this.positionSec,
+    reason: reason ?? this.reason,
+    createdAtMs: createdAtMs ?? this.createdAtMs,
+  );
+  PlaybackHistoryEntry copyWithCompanion(PlaybackHistoryEntriesCompanion data) {
+    return PlaybackHistoryEntry(
+      id: data.id.present ? data.id.value : this.id,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      libraryItemId: data.libraryItemId.present
+          ? data.libraryItemId.value
+          : this.libraryItemId,
+      positionSec: data.positionSec.present
+          ? data.positionSec.value
+          : this.positionSec,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      createdAtMs: data.createdAtMs.present
+          ? data.createdAtMs.value
+          : this.createdAtMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaybackHistoryEntry(')
+          ..write('id: $id, ')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('positionSec: $positionSec, ')
+          ..write('reason: $reason, ')
+          ..write('createdAtMs: $createdAtMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    serverId,
+    libraryItemId,
+    positionSec,
+    reason,
+    createdAtMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlaybackHistoryEntry &&
+          other.id == this.id &&
+          other.serverId == this.serverId &&
+          other.libraryItemId == this.libraryItemId &&
+          other.positionSec == this.positionSec &&
+          other.reason == this.reason &&
+          other.createdAtMs == this.createdAtMs);
+}
+
+class PlaybackHistoryEntriesCompanion
+    extends UpdateCompanion<PlaybackHistoryEntry> {
+  final Value<int> id;
+  final Value<String> serverId;
+  final Value<String> libraryItemId;
+  final Value<double> positionSec;
+  final Value<String> reason;
+  final Value<int> createdAtMs;
+  const PlaybackHistoryEntriesCompanion({
+    this.id = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.libraryItemId = const Value.absent(),
+    this.positionSec = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.createdAtMs = const Value.absent(),
+  });
+  PlaybackHistoryEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String serverId,
+    required String libraryItemId,
+    required double positionSec,
+    required String reason,
+    required int createdAtMs,
+  }) : serverId = Value(serverId),
+       libraryItemId = Value(libraryItemId),
+       positionSec = Value(positionSec),
+       reason = Value(reason),
+       createdAtMs = Value(createdAtMs);
+  static Insertable<PlaybackHistoryEntry> custom({
+    Expression<int>? id,
+    Expression<String>? serverId,
+    Expression<String>? libraryItemId,
+    Expression<double>? positionSec,
+    Expression<String>? reason,
+    Expression<int>? createdAtMs,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (serverId != null) 'server_id': serverId,
+      if (libraryItemId != null) 'library_item_id': libraryItemId,
+      if (positionSec != null) 'position_sec': positionSec,
+      if (reason != null) 'reason': reason,
+      if (createdAtMs != null) 'created_at_ms': createdAtMs,
+    });
+  }
+
+  PlaybackHistoryEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? serverId,
+    Value<String>? libraryItemId,
+    Value<double>? positionSec,
+    Value<String>? reason,
+    Value<int>? createdAtMs,
+  }) {
+    return PlaybackHistoryEntriesCompanion(
+      id: id ?? this.id,
+      serverId: serverId ?? this.serverId,
+      libraryItemId: libraryItemId ?? this.libraryItemId,
+      positionSec: positionSec ?? this.positionSec,
+      reason: reason ?? this.reason,
+      createdAtMs: createdAtMs ?? this.createdAtMs,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (libraryItemId.present) {
+      map['library_item_id'] = Variable<String>(libraryItemId.value);
+    }
+    if (positionSec.present) {
+      map['position_sec'] = Variable<double>(positionSec.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (createdAtMs.present) {
+      map['created_at_ms'] = Variable<int>(createdAtMs.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaybackHistoryEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('positionSec: $positionSec, ')
+          ..write('reason: $reason, ')
+          ..write('createdAtMs: $createdAtMs')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4655,6 +5087,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $MediaProgressEntriesTable(this);
   late final $BookmarksTable bookmarks = $BookmarksTable(this);
   late final $CollectionsTable collections = $CollectionsTable(this);
+  late final $PlaybackHistoryEntriesTable playbackHistoryEntries =
+      $PlaybackHistoryEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4667,6 +5101,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     mediaProgressEntries,
     bookmarks,
     collections,
+    playbackHistoryEntries,
   ];
 }
 
@@ -6900,6 +7335,256 @@ typedef $$CollectionsTableProcessedTableManager =
       Collection,
       PrefetchHooks Function()
     >;
+typedef $$PlaybackHistoryEntriesTableCreateCompanionBuilder =
+    PlaybackHistoryEntriesCompanion Function({
+      Value<int> id,
+      required String serverId,
+      required String libraryItemId,
+      required double positionSec,
+      required String reason,
+      required int createdAtMs,
+    });
+typedef $$PlaybackHistoryEntriesTableUpdateCompanionBuilder =
+    PlaybackHistoryEntriesCompanion Function({
+      Value<int> id,
+      Value<String> serverId,
+      Value<String> libraryItemId,
+      Value<double> positionSec,
+      Value<String> reason,
+      Value<int> createdAtMs,
+    });
+
+class $$PlaybackHistoryEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PlaybackHistoryEntriesTable> {
+  $$PlaybackHistoryEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get positionSec => $composableBuilder(
+    column: $table.positionSec,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PlaybackHistoryEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlaybackHistoryEntriesTable> {
+  $$PlaybackHistoryEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get positionSec => $composableBuilder(
+    column: $table.positionSec,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PlaybackHistoryEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlaybackHistoryEntriesTable> {
+  $$PlaybackHistoryEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get positionSec => $composableBuilder(
+    column: $table.positionSec,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => column,
+  );
+}
+
+class $$PlaybackHistoryEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlaybackHistoryEntriesTable,
+          PlaybackHistoryEntry,
+          $$PlaybackHistoryEntriesTableFilterComposer,
+          $$PlaybackHistoryEntriesTableOrderingComposer,
+          $$PlaybackHistoryEntriesTableAnnotationComposer,
+          $$PlaybackHistoryEntriesTableCreateCompanionBuilder,
+          $$PlaybackHistoryEntriesTableUpdateCompanionBuilder,
+          (
+            PlaybackHistoryEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $PlaybackHistoryEntriesTable,
+              PlaybackHistoryEntry
+            >,
+          ),
+          PlaybackHistoryEntry,
+          PrefetchHooks Function()
+        > {
+  $$PlaybackHistoryEntriesTableTableManager(
+    _$AppDatabase db,
+    $PlaybackHistoryEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlaybackHistoryEntriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PlaybackHistoryEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PlaybackHistoryEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> serverId = const Value.absent(),
+                Value<String> libraryItemId = const Value.absent(),
+                Value<double> positionSec = const Value.absent(),
+                Value<String> reason = const Value.absent(),
+                Value<int> createdAtMs = const Value.absent(),
+              }) => PlaybackHistoryEntriesCompanion(
+                id: id,
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                positionSec: positionSec,
+                reason: reason,
+                createdAtMs: createdAtMs,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String serverId,
+                required String libraryItemId,
+                required double positionSec,
+                required String reason,
+                required int createdAtMs,
+              }) => PlaybackHistoryEntriesCompanion.insert(
+                id: id,
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                positionSec: positionSec,
+                reason: reason,
+                createdAtMs: createdAtMs,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $PlaybackHistoryEntriesTable,
+                    PlaybackHistoryEntry
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PlaybackHistoryEntriesTable,
+                    PlaybackHistoryEntry
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PlaybackHistoryEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlaybackHistoryEntriesTable,
+      PlaybackHistoryEntry,
+      $$PlaybackHistoryEntriesTableFilterComposer,
+      $$PlaybackHistoryEntriesTableOrderingComposer,
+      $$PlaybackHistoryEntriesTableAnnotationComposer,
+      $$PlaybackHistoryEntriesTableCreateCompanionBuilder,
+      $$PlaybackHistoryEntriesTableUpdateCompanionBuilder,
+      (
+        PlaybackHistoryEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $PlaybackHistoryEntriesTable,
+          PlaybackHistoryEntry
+        >,
+      ),
+      PlaybackHistoryEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6918,4 +7603,9 @@ class $AppDatabaseManager {
       $$BookmarksTableTableManager(_db, _db.bookmarks);
   $$CollectionsTableTableManager get collections =>
       $$CollectionsTableTableManager(_db, _db.collections);
+  $$PlaybackHistoryEntriesTableTableManager get playbackHistoryEntries =>
+      $$PlaybackHistoryEntriesTableTableManager(
+        _db,
+        _db.playbackHistoryEntries,
+      );
 }

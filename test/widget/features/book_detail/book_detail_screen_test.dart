@@ -76,12 +76,16 @@ void main() {
         check(find.text('Rocky arrives').evaluate().length).equals(1);
         check(find.text('First contact scene').evaluate().length).equals(1);
 
-        // Tap Play & Download placeholders.
+        // Tap Play launches playback + pushes FullPlayerScreen.
         await tester.tap(find.byKey(const Key('book_detail_play_button')));
         await tester.pumpAndSettle();
         check(
-          find.text('Audio playback launches in Phase 3.').evaluate().length,
+          find.byKey(const Key('player_play_pause_button')).evaluate().length,
         ).equals(1);
+
+        // Return to Book Detail and verify Download placeholder.
+        await tester.tap(find.byKey(const Key('player_close_button')));
+        await tester.pumpAndSettle();
 
         await tester.tap(find.byKey(const Key('book_detail_download_button')));
         await tester.pumpAndSettle();

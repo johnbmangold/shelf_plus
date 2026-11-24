@@ -17,6 +17,10 @@ import 'package:shelf_plus/features/diagnostics/data/share_plus_log_exporter.dar
 import 'package:shelf_plus/features/diagnostics/domain/log_exporter.dart';
 import 'package:shelf_plus/features/library/data/library_repository_impl.dart';
 import 'package:shelf_plus/features/library/domain/library_repository.dart';
+import 'package:shelf_plus/features/player/data/just_audio_player_engine.dart';
+import 'package:shelf_plus/features/player/domain/audio_player_engine.dart';
+import 'package:shelf_plus/features/player/domain/shake_detector.dart';
+import 'package:shelf_plus/features/player/presentation/player_controller.dart';
 
 /// Composition root holding application-wide dependencies injected via
 /// constructors.
@@ -36,6 +40,7 @@ class AppDependencies {
     required this.socketService,
     required this.coverThemeExtractor,
     required this.logExporter,
+    required this.playerController,
     this.useGoogleFonts = true,
     this.enableNetworkImages = true,
     this.autoSyncOnStart = true,
@@ -51,6 +56,8 @@ class AppDependencies {
     LibraryRepository? libraryRepository,
     AbsSocketService? socketService,
     CoverThemeExtractor? coverThemeExtractor,
+    AudioPlayerEngine? audioPlayerEngine,
+    ShakeDetector? shakeDetector,
     HttpClientAdapter? httpClientAdapter,
     bool useGoogleFonts = true,
     bool enableNetworkImages = true,
@@ -103,6 +110,25 @@ class AppDependencies {
         );
 
     final resolvedSocket = socketService ?? SocketIoAbsService(logger: logger);
+    final resolvedCoverExtractor =
+        coverThemeExtractor ?? FlutterCoverThemeExtractor();
+    final resolvedEngine =
+        audioPlayerEngine ??
+        JustAudioPlayerEngine(
+          logger: logger,
+          notificationChannelId: '${flavorConfig.applicationId}.channel.audio',
+        );
+    final playerController = PlayerController(
+      apiClient: apiClient,
+      database: resolvedDb,
+      authController: authController,
+      credentialsStore: credentialsStore,
+      engine: resolvedEngine,
+      socketService: resolvedSocket,
+      coverThemeExtractor: resolvedCoverExtractor,
+      logger: logger,
+      shakeDetector: shakeDetector,
+    );
 
     return AppDependencies(
       flavorConfig: flavorConfig,
@@ -116,8 +142,9 @@ class AppDependencies {
       authController: authController,
       libraryRepository: resolvedLibraryRepo,
       socketService: resolvedSocket,
-      coverThemeExtractor: coverThemeExtractor ?? FlutterCoverThemeExtractor(),
+      coverThemeExtractor: resolvedCoverExtractor,
       logExporter: logExporter ?? const SharePlusLogExporter(),
+      playerController: playerController,
       useGoogleFonts: useGoogleFonts,
       enableNetworkImages: enableNetworkImages,
       autoSyncOnStart: autoSyncOnStart,
@@ -163,6 +190,9 @@ class AppDependencies {
   /// Diagnostic log exporter.
   final LogExporter logExporter;
 
+  /// Application-wide audio playback controller.
+  final PlayerController playerController;
+
   /// Whether Google Fonts network/bundled loading should be used in themes.
   final bool useGoogleFonts;
 
@@ -174,6 +204,7 @@ class AppDependencies {
 
   /// Releases resources owned by this composition root.
   void dispose() {
+    playerController.dispose();
     socketService.dispose();
     themeController.dispose();
     authController.dispose();

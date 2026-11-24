@@ -8,6 +8,7 @@ import 'package:shelf_plus/features/diagnostics/presentation/diagnostics_screen.
 import 'package:shelf_plus/features/downloads/presentation/downloads_screen.dart';
 import 'package:shelf_plus/features/home/presentation/home_screen.dart';
 import 'package:shelf_plus/features/library/presentation/library_screen.dart';
+import 'package:shelf_plus/features/player/presentation/full_player_screen.dart';
 import 'package:shelf_plus/features/settings/presentation/settings_screen.dart';
 
 /// Top-level route paths for the Shelf Plus application.
@@ -35,6 +36,9 @@ abstract final class AppRoutes {
 
   /// Book detail route pattern.
   static const String bookDetail = '/book/:itemId';
+
+  /// Full-screen audio player route path.
+  static const String player = '/player';
 
   /// Builds a concrete route path for opening [itemId] in [BookDetailScreen].
   static String bookDetailPath(String itemId) =>
@@ -96,14 +100,29 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
             loadImageHeaders:
                 dependencies.credentialsStore.loadActiveRequestHeaders,
             logger: dependencies.logger,
+            playerController: dependencies.playerController,
+            onOpenPlayer: () => context.push(AppRoutes.player),
             enableNetworkImages: dependencies.enableNetworkImages,
             autoFetchDetail: dependencies.autoSyncOnStart,
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.player,
+        builder: (context, state) => FullPlayerScreen(
+          playerController: dependencies.playerController,
+          themeController: dependencies.themeController,
+          enableNetworkImages: dependencies.enableNetworkImages,
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return AppShellScaffold(navigationShell: navigationShell);
+          return AppShellScaffold(
+            navigationShell: navigationShell,
+            playerController: dependencies.playerController,
+            onOpenPlayer: () => context.push(AppRoutes.player),
+            enableNetworkImages: dependencies.enableNetworkImages,
+          );
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(

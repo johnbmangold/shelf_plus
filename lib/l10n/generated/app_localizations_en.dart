@@ -388,4 +388,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diagnosticsExportFailed => 'Could not export diagnostic logs.';
+
+  @override
+  String get playerTitle => 'Now Playing';
+
+  @override
+  String get playerNoActiveBook => 'Nothing playing right now';
+
+  @override
+  String get playerNoActiveBookBody =>
+      'Select any audiobook from your library to begin listening.';
+
+  @override
+  String get playerPlay => 'Play';
+
+  @override
+  String get playerPause => 'Pause';
+
+  @override
+  String playerRewindSeconds(int seconds) {
+    return 'Rewind ${seconds}s';
+  }
+
+  @override
+  String playerForwardSeconds(int seconds) {
+    return 'Forward ${seconds}s';
+  }
+
+  @override
+  String get playerPreviousChapter => 'Previous chapter';
+
+  @override
+  String get playerNextChapter => 'Next chapter';
+
+  @override
+  String get playerScrubChapter => 'Chapter';
+
+  @override
+  String get playerScrubBook => 'Full Book';
+
+  @override
+  String playerSpeedLabel(String speed) {
+    return '${speed}x';
+  }
+
+  @override
+  String get playerSpeedSheetTitle => 'Playback speed';
+
+  @override
+  String get playerSkipSilenceLabel => 'Skip silence';
+
+  @override
+  String get playerSkipSilenceSubtitle =>
+      'Trim extended pauses between narration';
+
+  @override
+  String get playerSleepTimerLabel => 'Sleep timer';
+
+  @override
+  String get playerSleepOff => 'Off';
+
+  @override
+  String get playerSleepEndOfChapter => 'End of chapter';
+
+  @override
+  String playerSleepMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String playerSleepGraceHint(int minutes) {
+    return 'Shake phone to extend +$minutes min';
+  }
+
+  @override
+  String get playerChaptersLabel => 'Chapters';
+
+  @override
+  String get playerBookmarksLabel => 'Bookmarks';
+
+  @override
+  String get playerAddBookmark => 'Add bookmark';
+
+  @override
+  String get playerBookmarkTitleLabel => 'Bookmark title';
+
+  @override
+  String get playerBookmarkNoteLabel => 'Note (optional)';
+
+  @override
+  String get playerSaveBookmark => 'Save bookmark';
+
+  @override
+  String get playerNoBookmarks => 'No bookmarks saved for this book yet.';
+
+  @override
+  String get playerHistoryLabel => 'History';
+
+  @override
+  String get playerNoHistory => 'No playback jumps recorded yet.';
+
+  @override
+  String playerSmartRewindApplied(int seconds) {
+    return 'Rewound ${seconds}s on resume';
+  }
+
+  @override
+  String get playerStreamDirect => 'Direct Stream';
+
+  @override
+  String get playerStreamHls => 'HLS Transcode';
+
+  @override
+  String get playerBuffering => 'Buffering…';
+
+  @override
+  String get playerPlaybackError => 'Could not start audio playback.';
+
+  @override
+  String get playerHistoryReasonPlay => 'Started';
+
+  @override
+  String get playerHistoryReasonSeek => 'Scrubbed';
+
+  @override
+  String get playerHistoryReasonChapter => 'Chapter';
+
+  @override
+  String get playerHistoryReasonPause => 'Paused';
+
+  @override
+  String get playerHistoryReasonRewind => 'Smart rewind';
+
+  @override
+  String get playerHistoryReasonBookmark => 'Bookmark';
 }

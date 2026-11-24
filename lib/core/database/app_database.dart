@@ -9,6 +9,7 @@ import 'package:shelf_plus/core/database/tables/collections_table.dart';
 import 'package:shelf_plus/core/database/tables/libraries_table.dart';
 import 'package:shelf_plus/core/database/tables/library_items_table.dart';
 import 'package:shelf_plus/core/database/tables/media_progress_table.dart';
+import 'package:shelf_plus/core/database/tables/playback_history_table.dart';
 import 'package:shelf_plus/core/database/tables/server_profiles_table.dart';
 
 part 'app_database.g.dart';
@@ -36,6 +37,7 @@ class LibraryItemWithProgress {
     MediaProgressEntries,
     Bookmarks,
     Collections,
+    PlaybackHistoryEntries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -47,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   factory inMemory() => AppDatabase(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,6 +66,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(bookmarks);
         await m.createTable(collections);
         await _createFtsTable();
+      }
+      if (from < 3) {
+        await m.createTable(playbackHistoryEntries);
       }
     },
   );
@@ -241,6 +246,12 @@ class AppDatabase extends _$AppDatabase {
           ))
           .go();
       await (delete(bookmarks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      await (delete(playbackHistoryEntries)..where(
             (tbl) =>
                 tbl.serverId.equals(serverId) &
                 tbl.libraryItemId.equals(itemId),
@@ -518,6 +529,143 @@ class AppDatabase extends _$AppDatabase {
           .go();
       if (entries.isNotEmpty) {
         await batch((b) => b.insertAll(collections, entries));
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 3 Playback Progress, Bookmarks, and History
+  // ---------------------------------------------------------------------------
+
+  /// Updates local playback progress for [serverId] and [libraryItemId].
+  Future<void> updateLocalProgress({
+    required String serverId,
+    required String libraryItemId,
+    required double positionSec,
+    required double durationSec,
+    required int updatedAtMs,
+    bool markSynced = false,
+  }) {
+    final safePos = positionSec < 0 ? 0.0 : positionSec;
+    final ratio = durationSec > 0
+        ? (safePos / durationSec).clamp(0.0, 1.0)
+        : 0.0;
+    final finished = durationSec > 0 && safePos >= durationSec - 1;
+    return transaction(() async {
+      final existing =
+          await (select(mediaProgressEntries)..where(
+                (tbl) =>
+                    tbl.serverId.equals(serverId) &
+                    tbl.libraryItemId.equals(libraryItemId),
+              ))
+              .getSingleOrNull();
+      final resolvedDuration = durationSec > 0
+          ? durationSec
+          : (existing?.durationSec ?? 0.0);
+      await into(mediaProgressEntries).insertOnConflictUpdate(
+        MediaProgressEntriesCompanion.insert(
+          serverId: serverId,
+          libraryItemId: libraryItemId,
+          durationSec: Value<double>(resolvedDuration),
+          localPositionSec: Value<double>(safePos),
+          serverPositionSec: Value<double>(
+            markSynced ? safePos : (existing?.serverPositionSec ?? 0.0),
+          ),
+          lastSyncedPositionSec: Value<double>(
+            markSynced ? safePos : (existing?.lastSyncedPositionSec ?? 0.0),
+          ),
+          progress: Value<double>(ratio),
+          isFinished: Value<bool>(finished),
+          hideFromContinueListening: Value<bool>(
+            existing?.hideFromContinueListening ?? false,
+          ),
+          localUpdatedAtMs: Value<int>(updatedAtMs),
+          serverUpdatedAtMs: Value<int>(
+            markSynced ? updatedAtMs : (existing?.serverUpdatedAtMs ?? 0),
+          ),
+          syncState: Value<String>(markSynced ? 'synced' : 'pendingPush'),
+        ),
+      );
+    });
+  }
+
+  /// Inserts or updates a single [entry] bookmark.
+  Future<void> upsertBookmark(BookmarksCompanion entry) {
+    return into(bookmarks).insertOnConflictUpdate(entry);
+  }
+
+  /// Deletes the bookmark at [timeSec] for [serverId] and [libraryItemId].
+  Future<void> deleteBookmark(
+    String serverId,
+    String libraryItemId,
+    double timeSec,
+  ) {
+    return (delete(bookmarks)..where(
+          (tbl) =>
+              tbl.serverId.equals(serverId) &
+              tbl.libraryItemId.equals(libraryItemId) &
+              tbl.timeSec.equals(timeSec),
+        ))
+        .go();
+  }
+
+  /// Watches playback jump history for [serverId] and [libraryItemId],
+  /// ordered newest-first.
+  Stream<List<PlaybackHistoryEntry>> watchPlaybackHistory(
+    String serverId,
+    String libraryItemId,
+  ) {
+    return (select(playbackHistoryEntries)
+          ..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(libraryItemId),
+          )
+          ..orderBy(<OrderingTerm Function(PlaybackHistoryEntries)>[
+            (tbl) => OrderingTerm.desc(tbl.createdAtMs),
+            (tbl) => OrderingTerm.desc(tbl.id),
+          ]))
+        .watch();
+  }
+
+  /// Records a playback jump history entry and retains at most 100 entries
+  /// per item.
+  Future<void> recordPlaybackHistory({
+    required String serverId,
+    required String libraryItemId,
+    required double positionSec,
+    required String reason,
+    required int createdAtMs,
+    int maxEntries = 100,
+  }) {
+    return transaction(() async {
+      await into(playbackHistoryEntries).insert(
+        PlaybackHistoryEntriesCompanion.insert(
+          serverId: serverId,
+          libraryItemId: libraryItemId,
+          positionSec: positionSec,
+          reason: reason,
+          createdAtMs: createdAtMs,
+        ),
+      );
+      final overflow =
+          await (select(playbackHistoryEntries)
+                ..where(
+                  (tbl) =>
+                      tbl.serverId.equals(serverId) &
+                      tbl.libraryItemId.equals(libraryItemId),
+                )
+                ..orderBy(<OrderingTerm Function(PlaybackHistoryEntries)>[
+                  (tbl) => OrderingTerm.desc(tbl.createdAtMs),
+                  (tbl) => OrderingTerm.desc(tbl.id),
+                ])
+                ..limit(1000, offset: maxEntries))
+              .get();
+      if (overflow.isNotEmpty) {
+        final ids = overflow.map((e) => e.id).toList(growable: false);
+        await (delete(
+          playbackHistoryEntries,
+        )..where((tbl) => tbl.id.isIn(ids))).go();
       }
     });
   }

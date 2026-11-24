@@ -113,7 +113,23 @@ class MockAbsServer {
   /// Number of `POST /logout` requests observed.
   int logoutCount = 0;
 
+  /// Recorded `POST /api/items/:id/play` bodies.
+  final List<Map<String, dynamic>> playRequests = <Map<String, dynamic>>[];
+
+  /// Recorded `POST /api/session/:id/sync` bodies.
+  final List<Map<String, dynamic>> syncRequests = <Map<String, dynamic>>[];
+
+  /// Recorded `POST /api/session/:id/close` bodies.
+  final List<Map<String, dynamic>> closeRequests = <Map<String, dynamic>>[];
+
+  /// Recorded `POST /api/me/item/:id/bookmark` payloads.
+  final List<Map<String, dynamic>> createdBookmarks = <Map<String, dynamic>>[];
+
+  /// Recorded `DELETE /api/me/item/:id/bookmark/:time` paths.
+  final List<String> deletedBookmarkPaths = <String>[];
+
   int _tokenGeneration = 1;
+  int _sessionCounter = 0;
 
   /// Invalidates the current access token so subsequent authorized calls return
   /// HTTP 401 until refreshed.
@@ -313,6 +329,131 @@ class MockAbsServer {
         return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
       }
       return _jsonResponse(200, AbsLibraryFixtures.meResponseJson());
+    }
+
+    if (request.method == 'POST' &&
+        normalizedEndpoint.startsWith('/api/items/') &&
+        normalizedEndpoint.endsWith('/play')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final parts = normalizedEndpoint.split('/');
+      final itemId = parts.length >= 4 ? parts[3] : 'item-1';
+      final bodyText = await request.readAsString();
+      final decoded = bodyText.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(bodyText) as Map<String, dynamic>;
+      playRequests.add(decoded);
+      final forceDirect = decoded['forceDirectPlay'] as bool? ?? true;
+      _sessionCounter++;
+      final sessionId = 'session-$_sessionCounter';
+      if (forceDirect) {
+        return _jsonResponse(200, <String, Object?>{
+          'id': sessionId,
+          'libraryItemId': itemId,
+          'playMethod': 0,
+          'startTime': 0,
+          'currentTime': 0,
+          'duration': 3600,
+          'audioTracks': <Object>[
+            <String, Object?>{
+              'index': 0,
+              'startOffset': 0,
+              'duration': 1800,
+              'title': 'Part 1',
+              'contentUrl': '/api/items/$itemId/file/part1.m4b',
+              'mimeType': 'audio/mp4',
+            },
+            <String, Object?>{
+              'index': 1,
+              'startOffset': 1800,
+              'duration': 1800,
+              'title': 'Part 2',
+              'contentUrl': '/api/items/$itemId/file/part2.m4b',
+              'mimeType': 'audio/mp4',
+            },
+          ],
+        });
+      }
+      return _jsonResponse(200, <String, Object?>{
+        'id': sessionId,
+        'libraryItemId': itemId,
+        'playMethod': 2,
+        'startTime': 0,
+        'currentTime': 0,
+        'duration': 3600,
+        'audioTracks': <Object>[
+          <String, Object?>{
+            'index': 0,
+            'startOffset': 0,
+            'duration': 3600,
+            'title': 'HLS Stream',
+            'contentUrl': '/hls/$sessionId/output.m3u8',
+            'mimeType': 'application/x-mpegURL',
+          },
+        ],
+      });
+    }
+
+    if (request.method == 'POST' &&
+        normalizedEndpoint.startsWith('/api/session/') &&
+        normalizedEndpoint.endsWith('/sync')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final bodyText = await request.readAsString();
+      final decoded = jsonDecode(bodyText) as Map<String, dynamic>;
+      syncRequests.add(decoded);
+      return _jsonResponse(200, <String, Object?>{'id': 'synced'});
+    }
+
+    if (request.method == 'POST' &&
+        normalizedEndpoint.startsWith('/api/session/') &&
+        normalizedEndpoint.endsWith('/close')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final bodyText = await request.readAsString();
+      final decoded = bodyText.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(bodyText) as Map<String, dynamic>;
+      closeRequests.add(decoded);
+      return _jsonResponse(200, <String, Object?>{'success': true});
+    }
+
+    if (request.method == 'POST' &&
+        normalizedEndpoint.startsWith('/api/me/item/') &&
+        normalizedEndpoint.endsWith('/bookmark')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final parts = normalizedEndpoint.split('/');
+      final itemId = parts.length >= 4 ? parts[4] : 'item-1';
+      final bodyText = await request.readAsString();
+      final decoded = jsonDecode(bodyText) as Map<String, dynamic>;
+      final created = <String, Object?>{
+        'libraryItemId': itemId,
+        'title': decoded['title'] ?? 'Bookmark',
+        'time': decoded['time'] ?? 0,
+        'createdAt': 1718000000000,
+      };
+      createdBookmarks.add(created);
+      return _jsonResponse(200, created);
+    }
+
+    if (request.method == 'DELETE' &&
+        normalizedEndpoint.startsWith('/api/me/item/') &&
+        normalizedEndpoint.contains('/bookmark/')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      deletedBookmarkPaths.add(normalizedEndpoint);
+      return _jsonResponse(200, <String, Object?>{'success': true});
     }
 
     return _jsonResponse(404, <String, Object?>{'error': 'Not found'});

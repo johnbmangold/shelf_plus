@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:shelf_plus/core/logging/app_logger.dart';
 import 'package:shelf_plus/core/theme/app_theme.dart';
@@ -9,6 +11,7 @@ import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
 import 'package:shelf_plus/features/book_detail/presentation/book_detail_view_model.dart';
 import 'package:shelf_plus/features/library/domain/library_models.dart';
 import 'package:shelf_plus/features/library/domain/library_repository.dart';
+import 'package:shelf_plus/features/player/presentation/player_controller.dart';
 import 'package:shelf_plus/l10n/generated/app_localizations.dart';
 
 /// Book Detail screen featuring dynamic cover-art theming, editorial header,
@@ -23,6 +26,8 @@ class BookDetailScreen extends StatefulWidget {
     required this.themeController,
     required this.loadImageHeaders,
     required this.logger,
+    this.playerController,
+    this.onOpenPlayer,
     this.enableNetworkImages = true,
     this.autoFetchDetail = true,
     super.key,
@@ -48,6 +53,12 @@ class BookDetailScreen extends StatefulWidget {
 
   /// Application logger.
   final AppLogger logger;
+
+  /// Optional application player controller used when starting playback.
+  final PlayerController? playerController;
+
+  /// Callback opening the full-screen audio player route.
+  final VoidCallback? onOpenPlayer;
 
   /// Whether network cover fetching is enabled.
   final bool enableNetworkImages;
@@ -171,6 +182,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 headers: vm.imageHeaders,
                 enableNetworkImages: widget.enableNetworkImages,
                 isLoadingDetail: vm.isLoadingDetail,
+                playerController: widget.playerController,
+                onOpenPlayer: widget.onOpenPlayer,
               );
             },
           ),
@@ -187,6 +200,8 @@ class _BookDetailView extends StatelessWidget {
     required this.headers,
     required this.enableNetworkImages,
     required this.isLoadingDetail,
+    this.playerController,
+    this.onOpenPlayer,
   });
 
   final BookDetail detail;
@@ -194,6 +209,8 @@ class _BookDetailView extends StatelessWidget {
   final Map<String, String> headers;
   final bool enableNetworkImages;
   final bool isLoadingDetail;
+  final PlayerController? playerController;
+  final VoidCallback? onOpenPlayer;
 
   @override
   Widget build(BuildContext context) {
@@ -293,15 +310,26 @@ class _BookDetailView extends StatelessWidget {
                           child: FilledButton.icon(
                             key: const Key('book_detail_play_button'),
                             onPressed: () {
-                              ScaffoldMessenger.of(context)
-                                ..hideCurrentSnackBar()
-                                ..showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      l10n.bookDetailPlaybackPhase3,
+                              final player = playerController;
+                              if (player == null) {
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        l10n.bookDetailPlaybackPhase3,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                return;
+                              }
+                              unawaited(
+                                player.playBook(
+                                  book,
+                                  chapters: detail.chapters,
+                                ),
+                              );
+                              onOpenPlayer?.call();
                             },
                             icon: const Icon(Icons.play_arrow_rounded),
                             label: Text(

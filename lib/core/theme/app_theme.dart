@@ -185,4 +185,40 @@ abstract final class AppTheme {
         )
         .apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
   }
+
+  /// Applies a cover-extracted [scheme] on top of [baseTheme], preserving pure
+  /// black surfaces when [amoled] is true.
+  static ThemeData applyDynamicScheme({
+    required ThemeData baseTheme,
+    required ColorScheme? scheme,
+    required bool amoled,
+  }) {
+    if (scheme == null) return baseTheme;
+
+    final adjustedScheme = amoled
+        ? scheme.copyWith(
+            surface: Colors.black,
+            surfaceContainerLowest: Colors.black,
+            surfaceContainerLow: const Color(0xFF0A0A0B),
+            surfaceContainer: const Color(0xFF111113),
+          )
+        : scheme;
+
+    final baseTokens = baseTheme.extension<ShelfThemeTokens>();
+    final updatedTokens = baseTokens?.copyWith(
+      progressFill: adjustedScheme.primary,
+    );
+
+    return baseTheme.copyWith(
+      colorScheme: adjustedScheme,
+      scaffoldBackgroundColor: amoled ? Colors.black : adjustedScheme.surface,
+      appBarTheme: baseTheme.appBarTheme.copyWith(
+        backgroundColor: amoled ? Colors.black : adjustedScheme.surface,
+        foregroundColor: adjustedScheme.onSurface,
+      ),
+      extensions: updatedTokens != null
+          ? <ThemeExtension<dynamic>>[updatedTokens]
+          : baseTheme.extensions.values,
+    );
+  }
 }

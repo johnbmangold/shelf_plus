@@ -104,5 +104,67 @@ void main() {
         check(await db.watchChapters('s1', 'b1').first).isEmpty;
       },
     );
+
+    test('records up to 100 history jumps, upserts/deletes bookmarks, and '
+        'cascades deletes', () async {
+      await db.upsertLibraryItems('s1', <LibraryItemsCompanion>[
+        LibraryItemsCompanion.insert(
+          serverId: 's1',
+          id: 'b1',
+          libraryId: 'lib-1',
+          title: 'Project Hail Mary',
+        ),
+      ]);
+      for (var i = 0; i < 110; i++) {
+        await db.recordPlaybackHistory(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          positionSec: i * 10.0,
+          reason: 'seek',
+          createdAtMs: 1000 + i,
+        );
+      }
+
+      final history = await db.watchPlaybackHistory('s1', 'b1').first;
+      check(history.length).equals(100);
+      check(history.first.positionSec).equals(1090);
+      check(history.last.positionSec).equals(100);
+
+      await db.upsertBookmark(
+        BookmarksCompanion.insert(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          timeSec: 325,
+          title: 'Key Quote',
+          note: const Value<String?>('Favorite passage'),
+          createdAtMs: const Value<int>(5000),
+        ),
+      );
+      var bookmarks = await db.watchBookmarks('s1', 'b1').first;
+      check(bookmarks.length).equals(1);
+      check(bookmarks.first.note).equals('Favorite passage');
+
+      await db.updateLocalProgress(
+        serverId: 's1',
+        libraryItemId: 'b1',
+        positionSec: 500,
+        durationSec: 1000,
+        updatedAtMs: 6000,
+      );
+      final withProgress = await db.watchItemsWithProgress('s1').first;
+      final b1Row = withProgress
+          .where((row) => row.item.id == 'b1')
+          .firstOrNull;
+      check(b1Row?.progress?.localPositionSec).equals(500);
+      check(b1Row?.progress?.syncState).equals('pendingPush');
+
+      await db.deleteBookmark('s1', 'b1', 325);
+      bookmarks = await db.watchBookmarks('s1', 'b1').first;
+      check(bookmarks).isEmpty;
+
+      await db.deleteLibraryItem('s1', 'b1');
+      final remainingHistory = await db.watchPlaybackHistory('s1', 'b1').first;
+      check(remainingHistory).isEmpty;
+    });
   });
 }

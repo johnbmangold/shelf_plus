@@ -488,5 +488,195 @@
   "diagnosticsExportFailed": "Could not export diagnostic logs.",
   "@diagnosticsExportFailed": {
     "description": "Snackbar shown when exporting logs fails."
+  },
+  "playerTitle": "Now Playing",
+  "@playerTitle": {
+    "description": "Screen title / accessibility label for the full audio player."
+  },
+  "playerNoActiveBook": "Nothing playing right now",
+  "@playerNoActiveBook": {
+    "description": "Empty state title on the full player when no book is loaded."
+  },
+  "playerNoActiveBookBody": "Select any audiobook from your library to begin listening.",
+  "@playerNoActiveBookBody": {
+    "description": "Empty state subtitle on the full player."
+  },
+  "playerPlay": "Play",
+  "@playerPlay": {
+    "description": "Play button tooltip/label."
+  },
+  "playerPause": "Pause",
+  "@playerPause": {
+    "description": "Pause button tooltip/label."
+  },
+  "playerRewindSeconds": "Rewind {seconds}s",
+  "@playerRewindSeconds": {
+    "description": "Rewind transport button tooltip.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerForwardSeconds": "Forward {seconds}s",
+  "@playerForwardSeconds": {
+    "description": "Fast-forward transport button tooltip.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerPreviousChapter": "Previous chapter",
+  "@playerPreviousChapter": {
+    "description": "Previous chapter button tooltip."
+  },
+  "playerNextChapter": "Next chapter",
+  "@playerNextChapter": {
+    "description": "Next chapter button tooltip."
+  },
+  "playerScrubChapter": "Chapter",
+  "@playerScrubChapter": {
+    "description": "Scrubber mode chip for current chapter."
+  },
+  "playerScrubBook": "Full Book",
+  "@playerScrubBook": {
+    "description": "Scrubber mode chip for entire book."
+  },
+  "playerSpeedLabel": "{speed}x",
+  "@playerSpeedLabel": {
+    "description": "Playback speed pill label.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "playerSpeedSheetTitle": "Playback speed",
+  "@playerSpeedSheetTitle": {
+    "description": "Playback speed bottom sheet title."
+  },
+  "playerSkipSilenceLabel": "Skip silence",
+  "@playerSkipSilenceLabel": {
+    "description": "Skip silence toggle label inside speed/audio sheet."
+  },
+  "playerSkipSilenceSubtitle": "Trim extended pauses between narration",
+  "@playerSkipSilenceSubtitle": {
+    "description": "Skip silence toggle subtitle."
+  },
+  "playerSleepTimerLabel": "Sleep timer",
+  "@playerSleepTimerLabel": {
+    "description": "Sleep timer action label."
+  },
+  "playerSleepOff": "Off",
+  "@playerSleepOff": {
+    "description": "Sleep timer off label."
+  },
+  "playerSleepEndOfChapter": "End of chapter",
+  "@playerSleepEndOfChapter": {
+    "description": "Sleep timer option for stopping at chapter boundary."
+  },
+  "playerSleepMinutes": "{minutes} min",
+  "@playerSleepMinutes": {
+    "description": "Sleep timer duration option.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "playerSleepGraceHint": "Shake phone to extend +{minutes} min",
+  "@playerSleepGraceHint": {
+    "description": "Banner shown during sleep timer fade/grace window.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "playerChaptersLabel": "Chapters",
+  "@playerChaptersLabel": {
+    "description": "Chapters bottom sheet title and action button label."
+  },
+  "playerBookmarksLabel": "Bookmarks",
+  "@playerBookmarksLabel": {
+    "description": "Bookmarks bottom sheet title and action button label."
+  },
+  "playerAddBookmark": "Add bookmark",
+  "@playerAddBookmark": {
+    "description": "Button to create a bookmark at the current position."
+  },
+  "playerBookmarkTitleLabel": "Bookmark title",
+  "@playerBookmarkTitleLabel": {
+    "description": "Input label for bookmark title."
+  },
+  "playerBookmarkNoteLabel": "Note (optional)",
+  "@playerBookmarkNoteLabel": {
+    "description": "Input label for optional bookmark note."
+  },
+  "playerSaveBookmark": "Save bookmark",
+  "@playerSaveBookmark": {
+    "description": "Confirm button for saving a bookmark."
+  },
+  "playerNoBookmarks": "No bookmarks saved for this book yet.",
+  "@playerNoBookmarks": {
+    "description": "Empty state inside bookmarks sheet."
+  },
+  "playerHistoryLabel": "History",
+  "@playerHistoryLabel": {
+    "description": "Playback history bottom sheet title and action button label."
+  },
+  "playerNoHistory": "No playback jumps recorded yet.",
+  "@playerNoHistory": {
+    "description": "Empty state inside playback history sheet."
+  },
+  "playerSmartRewindApplied": "Rewound {seconds}s on resume",
+  "@playerSmartRewindApplied": {
+    "description": "Status chip/hint when smart rewind shifts resume position.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerStreamDirect": "Direct Stream",
+  "@playerStreamDirect": {
+    "description": "Stream badge for direct file playback."
+  },
+  "playerStreamHls": "HLS Transcode",
+  "@playerStreamHls": {
+    "description": "Stream badge for transcoded HLS playback."
+  },
+  "playerBuffering": "Buffering…",
+  "@playerBuffering": {
+    "description": "Status text while player buffers."
+  },
+  "playerPlaybackError": "Could not start audio playback.",
+  "@playerPlaybackError": {
+    "description": "Fallback error message when starting playback fails."
+  },
+  "playerHistoryReasonPlay": "Started",
+  "@playerHistoryReasonPlay": {
+    "description": "History reason badge for initial playback start."
+  },
+  "playerHistoryReasonSeek": "Scrubbed",
+  "@playerHistoryReasonSeek": {
+    "description": "History reason badge for manual seek."
+  },
+  "playerHistoryReasonChapter": "Chapter",
+  "@playerHistoryReasonChapter": {
+    "description": "History reason badge for chapter jump."
+  },
+  "playerHistoryReasonPause": "Paused",
+  "@playerHistoryReasonPause": {
+    "description": "History reason badge for pause."
+  },
+  "playerHistoryReasonRewind": "Smart rewind",
+  "@playerHistoryReasonRewind": {
+    "description": "History reason badge for smart rewind."
+  },
+  "playerHistoryReasonBookmark": "Bookmark",
+  "@playerHistoryReasonBookmark": {
+    "description": "History reason badge for bookmark jump."
   }
 }

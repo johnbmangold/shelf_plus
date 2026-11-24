@@ -1,16 +1,32 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:shelf_plus/core/theme/shelf_theme_tokens.dart';
+import 'package:shelf_plus/features/player/presentation/mini_player_bar.dart';
+import 'package:shelf_plus/features/player/presentation/player_controller.dart';
 import 'package:shelf_plus/l10n/generated/app_localizations.dart';
 
-/// Root 4-tab application shell containing the persistent mini-player slot and
+/// Root 4-tab application shell containing the persistent mini-player bar and
 /// Material 3 [NavigationBar].
 class AppShellScaffold extends StatelessWidget {
   /// Creates an [AppShellScaffold].
-  const new({required this.navigationShell, super.key});
+  const new({
+    required this.navigationShell,
+    required this.playerController,
+    required this.onOpenPlayer,
+    this.enableNetworkImages = true,
+    super.key,
+  });
 
   /// Stateful navigation shell managed by `go_router`.
   final StatefulNavigationShell navigationShell;
+
+  /// Shared application player controller driving the persistent mini-player.
+  final PlayerController playerController;
+
+  /// Callback opening the full-screen player route.
+  final VoidCallback onOpenPlayer;
+
+  /// Whether network cover fetching is enabled.
+  final bool enableNetworkImages;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +35,11 @@ class AppShellScaffold extends StatelessWidget {
       body: Column(
         children: <Widget>[
           Expanded(child: navigationShell),
-          const _MiniPlayerSlot(),
+          MiniPlayerBar(
+            playerController: playerController,
+            onOpenPlayer: onOpenPlayer,
+            enableNetworkImages: enableNetworkImages,
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -50,68 +70,6 @@ class AppShellScaffold extends StatelessWidget {
             label: l10n.navSettings,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MiniPlayerSlot extends StatelessWidget {
-  const new();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final tokens = context.shelfTokens;
-    final theme = Theme.of(context);
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: tokens.miniPlayerSurface,
-        border: Border(top: BorderSide(color: tokens.hairlineBorder)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: <Widget>[
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: tokens.hairlineBorder),
-              ),
-              child: Icon(
-                Icons.headphones_outlined,
-                color: tokens.subtleMetaText,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    l10n.miniPlayerIdleTitle,
-                    style: theme.textTheme.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    l10n.miniPlayerIdleSubtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: tokens.subtleMetaText,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
