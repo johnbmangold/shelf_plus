@@ -1,0 +1,91 @@
+{
+  "@@locale": "en",
+  "appTitle": "Shelf Plus",
+  "@appTitle": {
+    "description": "Application display title."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom navigation label for Home tab."
+  },
+  "navLibrary": "Library",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library tab."
+  },
+  "navDownloads": "Downloads",
+  "@navDownloads": {
+    "description": "Bottom navigation label for Downloads tab."
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Bottom navigation label for Settings tab."
+  },
+  "homeEmptyTitle": "Your listening shelf",
+  "@homeEmptyTitle": {
+    "description": "Placeholder title on Home screen."
+  },
+  "homeEmptySubtitle": "Connect an Audiobookshelf server in Phase 1 to see Continue Listening and recently added books.",
+  "@homeEmptySubtitle": {
+    "description": "Placeholder subtitle on Home screen."
+  },
+  "libraryEmptyTitle": "Library browser",
+  "@libraryEmptyTitle": {
+    "description": "Placeholder title on Library screen."
+  },
+  "libraryEmptySubtitle": "Browse books, series, authors, and collections with instant offline search.",
+  "@libraryEmptySubtitle": {
+    "description": "Placeholder subtitle on Library screen."
+  },
+  "downloadsEmptyTitle": "Offline downloads",
+  "@downloadsEmptyTitle": {
+    "description": "Placeholder title on Downloads screen."
+  },
+  "downloadsEmptySubtitle": "Background transfers and downloaded audiobooks will appear here.",
+  "@downloadsEmptySubtitle": {
+    "description": "Placeholder subtitle on Downloads screen."
+  },
+  "miniPlayerIdleTitle": "Nothing playing",
+  "@miniPlayerIdleTitle": {
+    "description": "Mini-player title when no audiobook is loaded."
+  },
+  "miniPlayerIdleSubtitle": "Choose a book to start listening",
+  "@miniPlayerIdleSubtitle": {
+    "description": "Mini-player subtitle when no audiobook is loaded."
+  },
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": {
+    "description": "Appearance section header in Settings."
+  },
+  "settingsThemeLabel": "Theme",
+  "@settingsThemeLabel": {
+    "description": "Label for theme mode selector."
+  },
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "Follow system theme mode."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Editorial light theme mode."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Editorial dark theme mode."
+  },
+  "themeAmoled": "AMOLED",
+  "@themeAmoled": {
+    "description": "True-black AMOLED theme mode."
+  },
+  "settingsEnvironment": "Environment",
+  "@settingsEnvironment": {
+    "description": "Environment/flavor section header in Settings."
+  },
+  "settingsFlavorLabel": "Flavor",
+  "@settingsFlavorLabel": {
+    "description": "Flavor row label in Settings."
+  },
+  "settingsBundleIdLabel": "Application ID",
+  "@settingsBundleIdLabel": {
+    "description": "Bundle/application ID row label in Settings."
+  }
+}
