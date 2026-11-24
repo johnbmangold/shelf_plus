@@ -5076,6 +5076,2166 @@ class PlaybackHistoryEntriesCompanion
   }
 }
 
+class $DownloadTasksTable extends DownloadTasks
+    with TableInfo<$DownloadTasksTable, DownloadTask> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DownloadTasksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _libraryItemIdMeta = const VerificationMeta(
+    'libraryItemId',
+  );
+  @override
+  late final GeneratedColumn<String> libraryItemId = GeneratedColumn<String>(
+    'library_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bytesDownloadedMeta = const VerificationMeta(
+    'bytesDownloaded',
+  );
+  @override
+  late final GeneratedColumn<int> bytesDownloaded = GeneratedColumn<int>(
+    'bytes_downloaded',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _totalBytesMeta = const VerificationMeta(
+    'totalBytes',
+  );
+  @override
+  late final GeneratedColumn<int> totalBytes = GeneratedColumn<int>(
+    'total_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _trackCountMeta = const VerificationMeta(
+    'trackCount',
+  );
+  @override
+  late final GeneratedColumn<int> trackCount = GeneratedColumn<int>(
+    'track_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _completedTracksMeta = const VerificationMeta(
+    'completedTracks',
+  );
+  @override
+  late final GeneratedColumn<int> completedTracks = GeneratedColumn<int>(
+    'completed_tracks',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _errorMessageMeta = const VerificationMeta(
+    'errorMessage',
+  );
+  @override
+  late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
+    'error_message',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMsMeta = const VerificationMeta(
+    'createdAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtMs = GeneratedColumn<int>(
+    'created_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMsMeta = const VerificationMeta(
+    'updatedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtMs = GeneratedColumn<int>(
+    'updated_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    serverId,
+    libraryItemId,
+    status,
+    bytesDownloaded,
+    totalBytes,
+    trackCount,
+    completedTracks,
+    errorMessage,
+    createdAtMs,
+    updatedAtMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'download_tasks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DownloadTask> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serverIdMeta);
+    }
+    if (data.containsKey('library_item_id')) {
+      context.handle(
+        _libraryItemIdMeta,
+        libraryItemId.isAcceptableOrUnknown(
+          data['library_item_id']!,
+          _libraryItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_libraryItemIdMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('bytes_downloaded')) {
+      context.handle(
+        _bytesDownloadedMeta,
+        bytesDownloaded.isAcceptableOrUnknown(
+          data['bytes_downloaded']!,
+          _bytesDownloadedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('total_bytes')) {
+      context.handle(
+        _totalBytesMeta,
+        totalBytes.isAcceptableOrUnknown(data['total_bytes']!, _totalBytesMeta),
+      );
+    }
+    if (data.containsKey('track_count')) {
+      context.handle(
+        _trackCountMeta,
+        trackCount.isAcceptableOrUnknown(data['track_count']!, _trackCountMeta),
+      );
+    }
+    if (data.containsKey('completed_tracks')) {
+      context.handle(
+        _completedTracksMeta,
+        completedTracks.isAcceptableOrUnknown(
+          data['completed_tracks']!,
+          _completedTracksMeta,
+        ),
+      );
+    }
+    if (data.containsKey('error_message')) {
+      context.handle(
+        _errorMessageMeta,
+        errorMessage.isAcceptableOrUnknown(
+          data['error_message']!,
+          _errorMessageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at_ms')) {
+      context.handle(
+        _createdAtMsMeta,
+        createdAtMs.isAcceptableOrUnknown(
+          data['created_at_ms']!,
+          _createdAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMsMeta);
+    }
+    if (data.containsKey('updated_at_ms')) {
+      context.handle(
+        _updatedAtMsMeta,
+        updatedAtMs.isAcceptableOrUnknown(
+          data['updated_at_ms']!,
+          _updatedAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {serverId, libraryItemId};
+  @override
+  DownloadTask map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DownloadTask(
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      )!,
+      libraryItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}library_item_id'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      bytesDownloaded: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bytes_downloaded'],
+      )!,
+      totalBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_bytes'],
+      )!,
+      trackCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}track_count'],
+      )!,
+      completedTracks: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completed_tracks'],
+      )!,
+      errorMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_message'],
+      ),
+      createdAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_ms'],
+      )!,
+      updatedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $DownloadTasksTable createAlias(String alias) {
+    return $DownloadTasksTable(attachedDatabase, alias);
+  }
+}
+
+class DownloadTask extends DataClass implements Insertable<DownloadTask> {
+  /// Owning server profile ID.
+  final String serverId;
+
+  /// Owning library item ID.
+  final String libraryItemId;
+
+  /// Status (`queued`, `downloading`, `paused`, `completed`, `failed`).
+  final String status;
+
+  /// Cumulative bytes written to disk across all tracks.
+  final int bytesDownloaded;
+
+  /// Expected total byte count across all tracks (0 if unknown).
+  final int totalBytes;
+
+  /// Total track count for the book.
+  final int trackCount;
+
+  /// Number of completed tracks for the book.
+  final int completedTracks;
+
+  /// Optional human-readable error message when paused or failed.
+  final String? errorMessage;
+
+  /// UTC epoch milliseconds when queued.
+  final int createdAtMs;
+
+  /// UTC epoch milliseconds of the last status or progress update.
+  final int updatedAtMs;
+  const DownloadTask({
+    required this.serverId,
+    required this.libraryItemId,
+    required this.status,
+    required this.bytesDownloaded,
+    required this.totalBytes,
+    required this.trackCount,
+    required this.completedTracks,
+    this.errorMessage,
+    required this.createdAtMs,
+    required this.updatedAtMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['server_id'] = Variable<String>(serverId);
+    map['library_item_id'] = Variable<String>(libraryItemId);
+    map['status'] = Variable<String>(status);
+    map['bytes_downloaded'] = Variable<int>(bytesDownloaded);
+    map['total_bytes'] = Variable<int>(totalBytes);
+    map['track_count'] = Variable<int>(trackCount);
+    map['completed_tracks'] = Variable<int>(completedTracks);
+    if (!nullToAbsent || errorMessage != null) {
+      map['error_message'] = Variable<String>(errorMessage);
+    }
+    map['created_at_ms'] = Variable<int>(createdAtMs);
+    map['updated_at_ms'] = Variable<int>(updatedAtMs);
+    return map;
+  }
+
+  DownloadTasksCompanion toCompanion(bool nullToAbsent) {
+    return DownloadTasksCompanion(
+      serverId: Value(serverId),
+      libraryItemId: Value(libraryItemId),
+      status: Value(status),
+      bytesDownloaded: Value(bytesDownloaded),
+      totalBytes: Value(totalBytes),
+      trackCount: Value(trackCount),
+      completedTracks: Value(completedTracks),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
+      createdAtMs: Value(createdAtMs),
+      updatedAtMs: Value(updatedAtMs),
+    );
+  }
+
+  factory DownloadTask.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DownloadTask(
+      serverId: serializer.fromJson<String>(json['serverId']),
+      libraryItemId: serializer.fromJson<String>(json['libraryItemId']),
+      status: serializer.fromJson<String>(json['status']),
+      bytesDownloaded: serializer.fromJson<int>(json['bytesDownloaded']),
+      totalBytes: serializer.fromJson<int>(json['totalBytes']),
+      trackCount: serializer.fromJson<int>(json['trackCount']),
+      completedTracks: serializer.fromJson<int>(json['completedTracks']),
+      errorMessage: serializer.fromJson<String?>(json['errorMessage']),
+      createdAtMs: serializer.fromJson<int>(json['createdAtMs']),
+      updatedAtMs: serializer.fromJson<int>(json['updatedAtMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'serverId': serializer.toJson<String>(serverId),
+      'libraryItemId': serializer.toJson<String>(libraryItemId),
+      'status': serializer.toJson<String>(status),
+      'bytesDownloaded': serializer.toJson<int>(bytesDownloaded),
+      'totalBytes': serializer.toJson<int>(totalBytes),
+      'trackCount': serializer.toJson<int>(trackCount),
+      'completedTracks': serializer.toJson<int>(completedTracks),
+      'errorMessage': serializer.toJson<String?>(errorMessage),
+      'createdAtMs': serializer.toJson<int>(createdAtMs),
+      'updatedAtMs': serializer.toJson<int>(updatedAtMs),
+    };
+  }
+
+  DownloadTask copyWith({
+    String? serverId,
+    String? libraryItemId,
+    String? status,
+    int? bytesDownloaded,
+    int? totalBytes,
+    int? trackCount,
+    int? completedTracks,
+    Value<String?> errorMessage = const Value.absent(),
+    int? createdAtMs,
+    int? updatedAtMs,
+  }) => DownloadTask(
+    serverId: serverId ?? this.serverId,
+    libraryItemId: libraryItemId ?? this.libraryItemId,
+    status: status ?? this.status,
+    bytesDownloaded: bytesDownloaded ?? this.bytesDownloaded,
+    totalBytes: totalBytes ?? this.totalBytes,
+    trackCount: trackCount ?? this.trackCount,
+    completedTracks: completedTracks ?? this.completedTracks,
+    errorMessage: errorMessage.present ? errorMessage.value : this.errorMessage,
+    createdAtMs: createdAtMs ?? this.createdAtMs,
+    updatedAtMs: updatedAtMs ?? this.updatedAtMs,
+  );
+  DownloadTask copyWithCompanion(DownloadTasksCompanion data) {
+    return DownloadTask(
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      libraryItemId: data.libraryItemId.present
+          ? data.libraryItemId.value
+          : this.libraryItemId,
+      status: data.status.present ? data.status.value : this.status,
+      bytesDownloaded: data.bytesDownloaded.present
+          ? data.bytesDownloaded.value
+          : this.bytesDownloaded,
+      totalBytes: data.totalBytes.present
+          ? data.totalBytes.value
+          : this.totalBytes,
+      trackCount: data.trackCount.present
+          ? data.trackCount.value
+          : this.trackCount,
+      completedTracks: data.completedTracks.present
+          ? data.completedTracks.value
+          : this.completedTracks,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+      createdAtMs: data.createdAtMs.present
+          ? data.createdAtMs.value
+          : this.createdAtMs,
+      updatedAtMs: data.updatedAtMs.present
+          ? data.updatedAtMs.value
+          : this.updatedAtMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadTask(')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('status: $status, ')
+          ..write('bytesDownloaded: $bytesDownloaded, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('completedTracks: $completedTracks, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('createdAtMs: $createdAtMs, ')
+          ..write('updatedAtMs: $updatedAtMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    serverId,
+    libraryItemId,
+    status,
+    bytesDownloaded,
+    totalBytes,
+    trackCount,
+    completedTracks,
+    errorMessage,
+    createdAtMs,
+    updatedAtMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DownloadTask &&
+          other.serverId == this.serverId &&
+          other.libraryItemId == this.libraryItemId &&
+          other.status == this.status &&
+          other.bytesDownloaded == this.bytesDownloaded &&
+          other.totalBytes == this.totalBytes &&
+          other.trackCount == this.trackCount &&
+          other.completedTracks == this.completedTracks &&
+          other.errorMessage == this.errorMessage &&
+          other.createdAtMs == this.createdAtMs &&
+          other.updatedAtMs == this.updatedAtMs);
+}
+
+class DownloadTasksCompanion extends UpdateCompanion<DownloadTask> {
+  final Value<String> serverId;
+  final Value<String> libraryItemId;
+  final Value<String> status;
+  final Value<int> bytesDownloaded;
+  final Value<int> totalBytes;
+  final Value<int> trackCount;
+  final Value<int> completedTracks;
+  final Value<String?> errorMessage;
+  final Value<int> createdAtMs;
+  final Value<int> updatedAtMs;
+  final Value<int> rowid;
+  const DownloadTasksCompanion({
+    this.serverId = const Value.absent(),
+    this.libraryItemId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.bytesDownloaded = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.completedTracks = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    this.createdAtMs = const Value.absent(),
+    this.updatedAtMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DownloadTasksCompanion.insert({
+    required String serverId,
+    required String libraryItemId,
+    required String status,
+    this.bytesDownloaded = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.completedTracks = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    required int createdAtMs,
+    required int updatedAtMs,
+    this.rowid = const Value.absent(),
+  }) : serverId = Value(serverId),
+       libraryItemId = Value(libraryItemId),
+       status = Value(status),
+       createdAtMs = Value(createdAtMs),
+       updatedAtMs = Value(updatedAtMs);
+  static Insertable<DownloadTask> custom({
+    Expression<String>? serverId,
+    Expression<String>? libraryItemId,
+    Expression<String>? status,
+    Expression<int>? bytesDownloaded,
+    Expression<int>? totalBytes,
+    Expression<int>? trackCount,
+    Expression<int>? completedTracks,
+    Expression<String>? errorMessage,
+    Expression<int>? createdAtMs,
+    Expression<int>? updatedAtMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (serverId != null) 'server_id': serverId,
+      if (libraryItemId != null) 'library_item_id': libraryItemId,
+      if (status != null) 'status': status,
+      if (bytesDownloaded != null) 'bytes_downloaded': bytesDownloaded,
+      if (totalBytes != null) 'total_bytes': totalBytes,
+      if (trackCount != null) 'track_count': trackCount,
+      if (completedTracks != null) 'completed_tracks': completedTracks,
+      if (errorMessage != null) 'error_message': errorMessage,
+      if (createdAtMs != null) 'created_at_ms': createdAtMs,
+      if (updatedAtMs != null) 'updated_at_ms': updatedAtMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DownloadTasksCompanion copyWith({
+    Value<String>? serverId,
+    Value<String>? libraryItemId,
+    Value<String>? status,
+    Value<int>? bytesDownloaded,
+    Value<int>? totalBytes,
+    Value<int>? trackCount,
+    Value<int>? completedTracks,
+    Value<String?>? errorMessage,
+    Value<int>? createdAtMs,
+    Value<int>? updatedAtMs,
+    Value<int>? rowid,
+  }) {
+    return DownloadTasksCompanion(
+      serverId: serverId ?? this.serverId,
+      libraryItemId: libraryItemId ?? this.libraryItemId,
+      status: status ?? this.status,
+      bytesDownloaded: bytesDownloaded ?? this.bytesDownloaded,
+      totalBytes: totalBytes ?? this.totalBytes,
+      trackCount: trackCount ?? this.trackCount,
+      completedTracks: completedTracks ?? this.completedTracks,
+      errorMessage: errorMessage ?? this.errorMessage,
+      createdAtMs: createdAtMs ?? this.createdAtMs,
+      updatedAtMs: updatedAtMs ?? this.updatedAtMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (libraryItemId.present) {
+      map['library_item_id'] = Variable<String>(libraryItemId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (bytesDownloaded.present) {
+      map['bytes_downloaded'] = Variable<int>(bytesDownloaded.value);
+    }
+    if (totalBytes.present) {
+      map['total_bytes'] = Variable<int>(totalBytes.value);
+    }
+    if (trackCount.present) {
+      map['track_count'] = Variable<int>(trackCount.value);
+    }
+    if (completedTracks.present) {
+      map['completed_tracks'] = Variable<int>(completedTracks.value);
+    }
+    if (errorMessage.present) {
+      map['error_message'] = Variable<String>(errorMessage.value);
+    }
+    if (createdAtMs.present) {
+      map['created_at_ms'] = Variable<int>(createdAtMs.value);
+    }
+    if (updatedAtMs.present) {
+      map['updated_at_ms'] = Variable<int>(updatedAtMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadTasksCompanion(')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('status: $status, ')
+          ..write('bytesDownloaded: $bytesDownloaded, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('completedTracks: $completedTracks, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('createdAtMs: $createdAtMs, ')
+          ..write('updatedAtMs: $updatedAtMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DownloadedTracksTable extends DownloadedTracks
+    with TableInfo<$DownloadedTracksTable, DownloadedTrack> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DownloadedTracksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _libraryItemIdMeta = const VerificationMeta(
+    'libraryItemId',
+  );
+  @override
+  late final GeneratedColumn<String> libraryItemId = GeneratedColumn<String>(
+    'library_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _trackIndexMeta = const VerificationMeta(
+    'trackIndex',
+  );
+  @override
+  late final GeneratedColumn<int> trackIndex = GeneratedColumn<int>(
+    'track_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inoMeta = const VerificationMeta('ino');
+  @override
+  late final GeneratedColumn<String> ino = GeneratedColumn<String>(
+    'ino',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentUrlMeta = const VerificationMeta(
+    'contentUrl',
+  );
+  @override
+  late final GeneratedColumn<String> contentUrl = GeneratedColumn<String>(
+    'content_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localPathMeta = const VerificationMeta(
+    'localPath',
+  );
+  @override
+  late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
+    'local_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startOffsetSecMeta = const VerificationMeta(
+    'startOffsetSec',
+  );
+  @override
+  late final GeneratedColumn<double> startOffsetSec = GeneratedColumn<double>(
+    'start_offset_sec',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _durationSecMeta = const VerificationMeta(
+    'durationSec',
+  );
+  @override
+  late final GeneratedColumn<double> durationSec = GeneratedColumn<double>(
+    'duration_sec',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _expectedBytesMeta = const VerificationMeta(
+    'expectedBytes',
+  );
+  @override
+  late final GeneratedColumn<int> expectedBytes = GeneratedColumn<int>(
+    'expected_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _downloadedBytesMeta = const VerificationMeta(
+    'downloadedBytes',
+  );
+  @override
+  late final GeneratedColumn<int> downloadedBytes = GeneratedColumn<int>(
+    'downloaded_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isCompleteMeta = const VerificationMeta(
+    'isComplete',
+  );
+  @override
+  late final GeneratedColumn<bool> isComplete = GeneratedColumn<bool>(
+    'is_complete',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_complete" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    serverId,
+    libraryItemId,
+    trackIndex,
+    ino,
+    title,
+    contentUrl,
+    localPath,
+    startOffsetSec,
+    durationSec,
+    expectedBytes,
+    downloadedBytes,
+    isComplete,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'downloaded_tracks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DownloadedTrack> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serverIdMeta);
+    }
+    if (data.containsKey('library_item_id')) {
+      context.handle(
+        _libraryItemIdMeta,
+        libraryItemId.isAcceptableOrUnknown(
+          data['library_item_id']!,
+          _libraryItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_libraryItemIdMeta);
+    }
+    if (data.containsKey('track_index')) {
+      context.handle(
+        _trackIndexMeta,
+        trackIndex.isAcceptableOrUnknown(data['track_index']!, _trackIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_trackIndexMeta);
+    }
+    if (data.containsKey('ino')) {
+      context.handle(
+        _inoMeta,
+        ino.isAcceptableOrUnknown(data['ino']!, _inoMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_inoMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('content_url')) {
+      context.handle(
+        _contentUrlMeta,
+        contentUrl.isAcceptableOrUnknown(data['content_url']!, _contentUrlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentUrlMeta);
+    }
+    if (data.containsKey('local_path')) {
+      context.handle(
+        _localPathMeta,
+        localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localPathMeta);
+    }
+    if (data.containsKey('start_offset_sec')) {
+      context.handle(
+        _startOffsetSecMeta,
+        startOffsetSec.isAcceptableOrUnknown(
+          data['start_offset_sec']!,
+          _startOffsetSecMeta,
+        ),
+      );
+    }
+    if (data.containsKey('duration_sec')) {
+      context.handle(
+        _durationSecMeta,
+        durationSec.isAcceptableOrUnknown(
+          data['duration_sec']!,
+          _durationSecMeta,
+        ),
+      );
+    }
+    if (data.containsKey('expected_bytes')) {
+      context.handle(
+        _expectedBytesMeta,
+        expectedBytes.isAcceptableOrUnknown(
+          data['expected_bytes']!,
+          _expectedBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('downloaded_bytes')) {
+      context.handle(
+        _downloadedBytesMeta,
+        downloadedBytes.isAcceptableOrUnknown(
+          data['downloaded_bytes']!,
+          _downloadedBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_complete')) {
+      context.handle(
+        _isCompleteMeta,
+        isComplete.isAcceptableOrUnknown(data['is_complete']!, _isCompleteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {serverId, libraryItemId, trackIndex};
+  @override
+  DownloadedTrack map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DownloadedTrack(
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      )!,
+      libraryItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}library_item_id'],
+      )!,
+      trackIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}track_index'],
+      )!,
+      ino: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ino'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      contentUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_url'],
+      )!,
+      localPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_path'],
+      )!,
+      startOffsetSec: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_offset_sec'],
+      )!,
+      durationSec: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}duration_sec'],
+      )!,
+      expectedBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expected_bytes'],
+      )!,
+      downloadedBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}downloaded_bytes'],
+      )!,
+      isComplete: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_complete'],
+      )!,
+    );
+  }
+
+  @override
+  $DownloadedTracksTable createAlias(String alias) {
+    return $DownloadedTracksTable(attachedDatabase, alias);
+  }
+}
+
+class DownloadedTrack extends DataClass implements Insertable<DownloadedTrack> {
+  /// Owning server profile ID.
+  final String serverId;
+
+  /// Owning library item ID.
+  final String libraryItemId;
+
+  /// Zero-based track index within the audiobook.
+  final int trackIndex;
+
+  /// Server audio file `ino` identifier.
+  final String ino;
+
+  /// Track display title.
+  final String title;
+
+  /// Relative server content endpoint used to fetch this track.
+  final String contentUrl;
+
+  /// Absolute finalized local file path on device storage.
+  final String localPath;
+
+  /// Cumulative start offset within the audiobook timeline in seconds.
+  final double startOffsetSec;
+
+  /// Track audio duration in seconds.
+  final double durationSec;
+
+  /// Expected size of this audio file in bytes (0 if unknown).
+  final int expectedBytes;
+
+  /// Bytes persisted on disk for this track so far.
+  final int downloadedBytes;
+
+  /// Whether this track has completed transfer and been finalized on disk.
+  final bool isComplete;
+  const DownloadedTrack({
+    required this.serverId,
+    required this.libraryItemId,
+    required this.trackIndex,
+    required this.ino,
+    required this.title,
+    required this.contentUrl,
+    required this.localPath,
+    required this.startOffsetSec,
+    required this.durationSec,
+    required this.expectedBytes,
+    required this.downloadedBytes,
+    required this.isComplete,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['server_id'] = Variable<String>(serverId);
+    map['library_item_id'] = Variable<String>(libraryItemId);
+    map['track_index'] = Variable<int>(trackIndex);
+    map['ino'] = Variable<String>(ino);
+    map['title'] = Variable<String>(title);
+    map['content_url'] = Variable<String>(contentUrl);
+    map['local_path'] = Variable<String>(localPath);
+    map['start_offset_sec'] = Variable<double>(startOffsetSec);
+    map['duration_sec'] = Variable<double>(durationSec);
+    map['expected_bytes'] = Variable<int>(expectedBytes);
+    map['downloaded_bytes'] = Variable<int>(downloadedBytes);
+    map['is_complete'] = Variable<bool>(isComplete);
+    return map;
+  }
+
+  DownloadedTracksCompanion toCompanion(bool nullToAbsent) {
+    return DownloadedTracksCompanion(
+      serverId: Value(serverId),
+      libraryItemId: Value(libraryItemId),
+      trackIndex: Value(trackIndex),
+      ino: Value(ino),
+      title: Value(title),
+      contentUrl: Value(contentUrl),
+      localPath: Value(localPath),
+      startOffsetSec: Value(startOffsetSec),
+      durationSec: Value(durationSec),
+      expectedBytes: Value(expectedBytes),
+      downloadedBytes: Value(downloadedBytes),
+      isComplete: Value(isComplete),
+    );
+  }
+
+  factory DownloadedTrack.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DownloadedTrack(
+      serverId: serializer.fromJson<String>(json['serverId']),
+      libraryItemId: serializer.fromJson<String>(json['libraryItemId']),
+      trackIndex: serializer.fromJson<int>(json['trackIndex']),
+      ino: serializer.fromJson<String>(json['ino']),
+      title: serializer.fromJson<String>(json['title']),
+      contentUrl: serializer.fromJson<String>(json['contentUrl']),
+      localPath: serializer.fromJson<String>(json['localPath']),
+      startOffsetSec: serializer.fromJson<double>(json['startOffsetSec']),
+      durationSec: serializer.fromJson<double>(json['durationSec']),
+      expectedBytes: serializer.fromJson<int>(json['expectedBytes']),
+      downloadedBytes: serializer.fromJson<int>(json['downloadedBytes']),
+      isComplete: serializer.fromJson<bool>(json['isComplete']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'serverId': serializer.toJson<String>(serverId),
+      'libraryItemId': serializer.toJson<String>(libraryItemId),
+      'trackIndex': serializer.toJson<int>(trackIndex),
+      'ino': serializer.toJson<String>(ino),
+      'title': serializer.toJson<String>(title),
+      'contentUrl': serializer.toJson<String>(contentUrl),
+      'localPath': serializer.toJson<String>(localPath),
+      'startOffsetSec': serializer.toJson<double>(startOffsetSec),
+      'durationSec': serializer.toJson<double>(durationSec),
+      'expectedBytes': serializer.toJson<int>(expectedBytes),
+      'downloadedBytes': serializer.toJson<int>(downloadedBytes),
+      'isComplete': serializer.toJson<bool>(isComplete),
+    };
+  }
+
+  DownloadedTrack copyWith({
+    String? serverId,
+    String? libraryItemId,
+    int? trackIndex,
+    String? ino,
+    String? title,
+    String? contentUrl,
+    String? localPath,
+    double? startOffsetSec,
+    double? durationSec,
+    int? expectedBytes,
+    int? downloadedBytes,
+    bool? isComplete,
+  }) => DownloadedTrack(
+    serverId: serverId ?? this.serverId,
+    libraryItemId: libraryItemId ?? this.libraryItemId,
+    trackIndex: trackIndex ?? this.trackIndex,
+    ino: ino ?? this.ino,
+    title: title ?? this.title,
+    contentUrl: contentUrl ?? this.contentUrl,
+    localPath: localPath ?? this.localPath,
+    startOffsetSec: startOffsetSec ?? this.startOffsetSec,
+    durationSec: durationSec ?? this.durationSec,
+    expectedBytes: expectedBytes ?? this.expectedBytes,
+    downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+    isComplete: isComplete ?? this.isComplete,
+  );
+  DownloadedTrack copyWithCompanion(DownloadedTracksCompanion data) {
+    return DownloadedTrack(
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      libraryItemId: data.libraryItemId.present
+          ? data.libraryItemId.value
+          : this.libraryItemId,
+      trackIndex: data.trackIndex.present
+          ? data.trackIndex.value
+          : this.trackIndex,
+      ino: data.ino.present ? data.ino.value : this.ino,
+      title: data.title.present ? data.title.value : this.title,
+      contentUrl: data.contentUrl.present
+          ? data.contentUrl.value
+          : this.contentUrl,
+      localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      startOffsetSec: data.startOffsetSec.present
+          ? data.startOffsetSec.value
+          : this.startOffsetSec,
+      durationSec: data.durationSec.present
+          ? data.durationSec.value
+          : this.durationSec,
+      expectedBytes: data.expectedBytes.present
+          ? data.expectedBytes.value
+          : this.expectedBytes,
+      downloadedBytes: data.downloadedBytes.present
+          ? data.downloadedBytes.value
+          : this.downloadedBytes,
+      isComplete: data.isComplete.present
+          ? data.isComplete.value
+          : this.isComplete,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadedTrack(')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('trackIndex: $trackIndex, ')
+          ..write('ino: $ino, ')
+          ..write('title: $title, ')
+          ..write('contentUrl: $contentUrl, ')
+          ..write('localPath: $localPath, ')
+          ..write('startOffsetSec: $startOffsetSec, ')
+          ..write('durationSec: $durationSec, ')
+          ..write('expectedBytes: $expectedBytes, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('isComplete: $isComplete')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    serverId,
+    libraryItemId,
+    trackIndex,
+    ino,
+    title,
+    contentUrl,
+    localPath,
+    startOffsetSec,
+    durationSec,
+    expectedBytes,
+    downloadedBytes,
+    isComplete,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DownloadedTrack &&
+          other.serverId == this.serverId &&
+          other.libraryItemId == this.libraryItemId &&
+          other.trackIndex == this.trackIndex &&
+          other.ino == this.ino &&
+          other.title == this.title &&
+          other.contentUrl == this.contentUrl &&
+          other.localPath == this.localPath &&
+          other.startOffsetSec == this.startOffsetSec &&
+          other.durationSec == this.durationSec &&
+          other.expectedBytes == this.expectedBytes &&
+          other.downloadedBytes == this.downloadedBytes &&
+          other.isComplete == this.isComplete);
+}
+
+class DownloadedTracksCompanion extends UpdateCompanion<DownloadedTrack> {
+  final Value<String> serverId;
+  final Value<String> libraryItemId;
+  final Value<int> trackIndex;
+  final Value<String> ino;
+  final Value<String> title;
+  final Value<String> contentUrl;
+  final Value<String> localPath;
+  final Value<double> startOffsetSec;
+  final Value<double> durationSec;
+  final Value<int> expectedBytes;
+  final Value<int> downloadedBytes;
+  final Value<bool> isComplete;
+  final Value<int> rowid;
+  const DownloadedTracksCompanion({
+    this.serverId = const Value.absent(),
+    this.libraryItemId = const Value.absent(),
+    this.trackIndex = const Value.absent(),
+    this.ino = const Value.absent(),
+    this.title = const Value.absent(),
+    this.contentUrl = const Value.absent(),
+    this.localPath = const Value.absent(),
+    this.startOffsetSec = const Value.absent(),
+    this.durationSec = const Value.absent(),
+    this.expectedBytes = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DownloadedTracksCompanion.insert({
+    required String serverId,
+    required String libraryItemId,
+    required int trackIndex,
+    required String ino,
+    required String title,
+    required String contentUrl,
+    required String localPath,
+    this.startOffsetSec = const Value.absent(),
+    this.durationSec = const Value.absent(),
+    this.expectedBytes = const Value.absent(),
+    this.downloadedBytes = const Value.absent(),
+    this.isComplete = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : serverId = Value(serverId),
+       libraryItemId = Value(libraryItemId),
+       trackIndex = Value(trackIndex),
+       ino = Value(ino),
+       title = Value(title),
+       contentUrl = Value(contentUrl),
+       localPath = Value(localPath);
+  static Insertable<DownloadedTrack> custom({
+    Expression<String>? serverId,
+    Expression<String>? libraryItemId,
+    Expression<int>? trackIndex,
+    Expression<String>? ino,
+    Expression<String>? title,
+    Expression<String>? contentUrl,
+    Expression<String>? localPath,
+    Expression<double>? startOffsetSec,
+    Expression<double>? durationSec,
+    Expression<int>? expectedBytes,
+    Expression<int>? downloadedBytes,
+    Expression<bool>? isComplete,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (serverId != null) 'server_id': serverId,
+      if (libraryItemId != null) 'library_item_id': libraryItemId,
+      if (trackIndex != null) 'track_index': trackIndex,
+      if (ino != null) 'ino': ino,
+      if (title != null) 'title': title,
+      if (contentUrl != null) 'content_url': contentUrl,
+      if (localPath != null) 'local_path': localPath,
+      if (startOffsetSec != null) 'start_offset_sec': startOffsetSec,
+      if (durationSec != null) 'duration_sec': durationSec,
+      if (expectedBytes != null) 'expected_bytes': expectedBytes,
+      if (downloadedBytes != null) 'downloaded_bytes': downloadedBytes,
+      if (isComplete != null) 'is_complete': isComplete,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DownloadedTracksCompanion copyWith({
+    Value<String>? serverId,
+    Value<String>? libraryItemId,
+    Value<int>? trackIndex,
+    Value<String>? ino,
+    Value<String>? title,
+    Value<String>? contentUrl,
+    Value<String>? localPath,
+    Value<double>? startOffsetSec,
+    Value<double>? durationSec,
+    Value<int>? expectedBytes,
+    Value<int>? downloadedBytes,
+    Value<bool>? isComplete,
+    Value<int>? rowid,
+  }) {
+    return DownloadedTracksCompanion(
+      serverId: serverId ?? this.serverId,
+      libraryItemId: libraryItemId ?? this.libraryItemId,
+      trackIndex: trackIndex ?? this.trackIndex,
+      ino: ino ?? this.ino,
+      title: title ?? this.title,
+      contentUrl: contentUrl ?? this.contentUrl,
+      localPath: localPath ?? this.localPath,
+      startOffsetSec: startOffsetSec ?? this.startOffsetSec,
+      durationSec: durationSec ?? this.durationSec,
+      expectedBytes: expectedBytes ?? this.expectedBytes,
+      downloadedBytes: downloadedBytes ?? this.downloadedBytes,
+      isComplete: isComplete ?? this.isComplete,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (libraryItemId.present) {
+      map['library_item_id'] = Variable<String>(libraryItemId.value);
+    }
+    if (trackIndex.present) {
+      map['track_index'] = Variable<int>(trackIndex.value);
+    }
+    if (ino.present) {
+      map['ino'] = Variable<String>(ino.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (contentUrl.present) {
+      map['content_url'] = Variable<String>(contentUrl.value);
+    }
+    if (localPath.present) {
+      map['local_path'] = Variable<String>(localPath.value);
+    }
+    if (startOffsetSec.present) {
+      map['start_offset_sec'] = Variable<double>(startOffsetSec.value);
+    }
+    if (durationSec.present) {
+      map['duration_sec'] = Variable<double>(durationSec.value);
+    }
+    if (expectedBytes.present) {
+      map['expected_bytes'] = Variable<int>(expectedBytes.value);
+    }
+    if (downloadedBytes.present) {
+      map['downloaded_bytes'] = Variable<int>(downloadedBytes.value);
+    }
+    if (isComplete.present) {
+      map['is_complete'] = Variable<bool>(isComplete.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadedTracksCompanion(')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('trackIndex: $trackIndex, ')
+          ..write('ino: $ino, ')
+          ..write('title: $title, ')
+          ..write('contentUrl: $contentUrl, ')
+          ..write('localPath: $localPath, ')
+          ..write('startOffsetSec: $startOffsetSec, ')
+          ..write('durationSec: $durationSec, ')
+          ..write('expectedBytes: $expectedBytes, ')
+          ..write('downloadedBytes: $downloadedBytes, ')
+          ..write('isComplete: $isComplete, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PendingSyncMutationsTable extends PendingSyncMutations
+    with TableInfo<$PendingSyncMutationsTable, PendingSyncMutation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingSyncMutationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _libraryItemIdMeta = const VerificationMeta(
+    'libraryItemId',
+  );
+  @override
+  late final GeneratedColumn<String> libraryItemId = GeneratedColumn<String>(
+    'library_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mutationTypeMeta = const VerificationMeta(
+    'mutationType',
+  );
+  @override
+  late final GeneratedColumn<String> mutationType = GeneratedColumn<String>(
+    'mutation_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
+    'payloadJson',
+  );
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+    'payload_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMsMeta = const VerificationMeta(
+    'createdAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtMs = GeneratedColumn<int>(
+    'created_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _retryCountMeta = const VerificationMeta(
+    'retryCount',
+  );
+  @override
+  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>(
+    'retry_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    serverId,
+    libraryItemId,
+    mutationType,
+    payloadJson,
+    createdAtMs,
+    retryCount,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_sync_mutations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PendingSyncMutation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serverIdMeta);
+    }
+    if (data.containsKey('library_item_id')) {
+      context.handle(
+        _libraryItemIdMeta,
+        libraryItemId.isAcceptableOrUnknown(
+          data['library_item_id']!,
+          _libraryItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_libraryItemIdMeta);
+    }
+    if (data.containsKey('mutation_type')) {
+      context.handle(
+        _mutationTypeMeta,
+        mutationType.isAcceptableOrUnknown(
+          data['mutation_type']!,
+          _mutationTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_mutationTypeMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+        _payloadJsonMeta,
+        payloadJson.isAcceptableOrUnknown(
+          data['payload_json']!,
+          _payloadJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadJsonMeta);
+    }
+    if (data.containsKey('created_at_ms')) {
+      context.handle(
+        _createdAtMsMeta,
+        createdAtMs.isAcceptableOrUnknown(
+          data['created_at_ms']!,
+          _createdAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMsMeta);
+    }
+    if (data.containsKey('retry_count')) {
+      context.handle(
+        _retryCountMeta,
+        retryCount.isAcceptableOrUnknown(data['retry_count']!, _retryCountMeta),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PendingSyncMutation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingSyncMutation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      )!,
+      libraryItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}library_item_id'],
+      )!,
+      mutationType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mutation_type'],
+      )!,
+      payloadJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload_json'],
+      )!,
+      createdAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_ms'],
+      )!,
+      retryCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}retry_count'],
+      )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+    );
+  }
+
+  @override
+  $PendingSyncMutationsTable createAlias(String alias) {
+    return $PendingSyncMutationsTable(attachedDatabase, alias);
+  }
+}
+
+class PendingSyncMutation extends DataClass
+    implements Insertable<PendingSyncMutation> {
+  /// Auto-incrementing queue row ID.
+  final int id;
+
+  /// Owning server profile ID.
+  final String serverId;
+
+  /// Owning library item ID.
+  final String libraryItemId;
+
+  /// Mutation kind (`progress`, `bookmarkCreate`, `bookmarkDelete`).
+  final String mutationType;
+
+  /// JSON-serialized mutation payload.
+  final String payloadJson;
+
+  /// UTC epoch milliseconds when queued or last coalesced.
+  final int createdAtMs;
+
+  /// Number of failed flush attempts so far.
+  final int retryCount;
+
+  /// Latest sync failure description, if any.
+  final String? lastError;
+  const PendingSyncMutation({
+    required this.id,
+    required this.serverId,
+    required this.libraryItemId,
+    required this.mutationType,
+    required this.payloadJson,
+    required this.createdAtMs,
+    required this.retryCount,
+    this.lastError,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['server_id'] = Variable<String>(serverId);
+    map['library_item_id'] = Variable<String>(libraryItemId);
+    map['mutation_type'] = Variable<String>(mutationType);
+    map['payload_json'] = Variable<String>(payloadJson);
+    map['created_at_ms'] = Variable<int>(createdAtMs);
+    map['retry_count'] = Variable<int>(retryCount);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  PendingSyncMutationsCompanion toCompanion(bool nullToAbsent) {
+    return PendingSyncMutationsCompanion(
+      id: Value(id),
+      serverId: Value(serverId),
+      libraryItemId: Value(libraryItemId),
+      mutationType: Value(mutationType),
+      payloadJson: Value(payloadJson),
+      createdAtMs: Value(createdAtMs),
+      retryCount: Value(retryCount),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory PendingSyncMutation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingSyncMutation(
+      id: serializer.fromJson<int>(json['id']),
+      serverId: serializer.fromJson<String>(json['serverId']),
+      libraryItemId: serializer.fromJson<String>(json['libraryItemId']),
+      mutationType: serializer.fromJson<String>(json['mutationType']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      createdAtMs: serializer.fromJson<int>(json['createdAtMs']),
+      retryCount: serializer.fromJson<int>(json['retryCount']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'serverId': serializer.toJson<String>(serverId),
+      'libraryItemId': serializer.toJson<String>(libraryItemId),
+      'mutationType': serializer.toJson<String>(mutationType),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'createdAtMs': serializer.toJson<int>(createdAtMs),
+      'retryCount': serializer.toJson<int>(retryCount),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  PendingSyncMutation copyWith({
+    int? id,
+    String? serverId,
+    String? libraryItemId,
+    String? mutationType,
+    String? payloadJson,
+    int? createdAtMs,
+    int? retryCount,
+    Value<String?> lastError = const Value.absent(),
+  }) => PendingSyncMutation(
+    id: id ?? this.id,
+    serverId: serverId ?? this.serverId,
+    libraryItemId: libraryItemId ?? this.libraryItemId,
+    mutationType: mutationType ?? this.mutationType,
+    payloadJson: payloadJson ?? this.payloadJson,
+    createdAtMs: createdAtMs ?? this.createdAtMs,
+    retryCount: retryCount ?? this.retryCount,
+    lastError: lastError.present ? lastError.value : this.lastError,
+  );
+  PendingSyncMutation copyWithCompanion(PendingSyncMutationsCompanion data) {
+    return PendingSyncMutation(
+      id: data.id.present ? data.id.value : this.id,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      libraryItemId: data.libraryItemId.present
+          ? data.libraryItemId.value
+          : this.libraryItemId,
+      mutationType: data.mutationType.present
+          ? data.mutationType.value
+          : this.mutationType,
+      payloadJson: data.payloadJson.present
+          ? data.payloadJson.value
+          : this.payloadJson,
+      createdAtMs: data.createdAtMs.present
+          ? data.createdAtMs.value
+          : this.createdAtMs,
+      retryCount: data.retryCount.present
+          ? data.retryCount.value
+          : this.retryCount,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingSyncMutation(')
+          ..write('id: $id, ')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('mutationType: $mutationType, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('createdAtMs: $createdAtMs, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    serverId,
+    libraryItemId,
+    mutationType,
+    payloadJson,
+    createdAtMs,
+    retryCount,
+    lastError,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingSyncMutation &&
+          other.id == this.id &&
+          other.serverId == this.serverId &&
+          other.libraryItemId == this.libraryItemId &&
+          other.mutationType == this.mutationType &&
+          other.payloadJson == this.payloadJson &&
+          other.createdAtMs == this.createdAtMs &&
+          other.retryCount == this.retryCount &&
+          other.lastError == this.lastError);
+}
+
+class PendingSyncMutationsCompanion
+    extends UpdateCompanion<PendingSyncMutation> {
+  final Value<int> id;
+  final Value<String> serverId;
+  final Value<String> libraryItemId;
+  final Value<String> mutationType;
+  final Value<String> payloadJson;
+  final Value<int> createdAtMs;
+  final Value<int> retryCount;
+  final Value<String?> lastError;
+  const PendingSyncMutationsCompanion({
+    this.id = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.libraryItemId = const Value.absent(),
+    this.mutationType = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.createdAtMs = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    this.lastError = const Value.absent(),
+  });
+  PendingSyncMutationsCompanion.insert({
+    this.id = const Value.absent(),
+    required String serverId,
+    required String libraryItemId,
+    required String mutationType,
+    required String payloadJson,
+    required int createdAtMs,
+    this.retryCount = const Value.absent(),
+    this.lastError = const Value.absent(),
+  }) : serverId = Value(serverId),
+       libraryItemId = Value(libraryItemId),
+       mutationType = Value(mutationType),
+       payloadJson = Value(payloadJson),
+       createdAtMs = Value(createdAtMs);
+  static Insertable<PendingSyncMutation> custom({
+    Expression<int>? id,
+    Expression<String>? serverId,
+    Expression<String>? libraryItemId,
+    Expression<String>? mutationType,
+    Expression<String>? payloadJson,
+    Expression<int>? createdAtMs,
+    Expression<int>? retryCount,
+    Expression<String>? lastError,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (serverId != null) 'server_id': serverId,
+      if (libraryItemId != null) 'library_item_id': libraryItemId,
+      if (mutationType != null) 'mutation_type': mutationType,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (createdAtMs != null) 'created_at_ms': createdAtMs,
+      if (retryCount != null) 'retry_count': retryCount,
+      if (lastError != null) 'last_error': lastError,
+    });
+  }
+
+  PendingSyncMutationsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? serverId,
+    Value<String>? libraryItemId,
+    Value<String>? mutationType,
+    Value<String>? payloadJson,
+    Value<int>? createdAtMs,
+    Value<int>? retryCount,
+    Value<String?>? lastError,
+  }) {
+    return PendingSyncMutationsCompanion(
+      id: id ?? this.id,
+      serverId: serverId ?? this.serverId,
+      libraryItemId: libraryItemId ?? this.libraryItemId,
+      mutationType: mutationType ?? this.mutationType,
+      payloadJson: payloadJson ?? this.payloadJson,
+      createdAtMs: createdAtMs ?? this.createdAtMs,
+      retryCount: retryCount ?? this.retryCount,
+      lastError: lastError ?? this.lastError,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (libraryItemId.present) {
+      map['library_item_id'] = Variable<String>(libraryItemId.value);
+    }
+    if (mutationType.present) {
+      map['mutation_type'] = Variable<String>(mutationType.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (createdAtMs.present) {
+      map['created_at_ms'] = Variable<int>(createdAtMs.value);
+    }
+    if (retryCount.present) {
+      map['retry_count'] = Variable<int>(retryCount.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingSyncMutationsCompanion(')
+          ..write('id: $id, ')
+          ..write('serverId: $serverId, ')
+          ..write('libraryItemId: $libraryItemId, ')
+          ..write('mutationType: $mutationType, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('createdAtMs: $createdAtMs, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AppPreferencesTable extends AppPreferences
+    with TableInfo<$AppPreferencesTable, AppPreference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AppPreferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'app_preferences';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AppPreference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  AppPreference map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AppPreference(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+    );
+  }
+
+  @override
+  $AppPreferencesTable createAlias(String alias) {
+    return $AppPreferencesTable(attachedDatabase, alias);
+  }
+}
+
+class AppPreference extends DataClass implements Insertable<AppPreference> {
+  /// Preference key.
+  final String key;
+
+  /// Preference string value.
+  final String value;
+  const AppPreference({required this.key, required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  AppPreferencesCompanion toCompanion(bool nullToAbsent) {
+    return AppPreferencesCompanion(key: Value(key), value: Value(value));
+  }
+
+  factory AppPreference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AppPreference(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  AppPreference copyWith({String? key, String? value}) =>
+      AppPreference(key: key ?? this.key, value: value ?? this.value);
+  AppPreference copyWithCompanion(AppPreferencesCompanion data) {
+    return AppPreference(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppPreference(')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AppPreference &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class AppPreferencesCompanion extends UpdateCompanion<AppPreference> {
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const AppPreferencesCompanion({
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AppPreferencesCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
+  static Insertable<AppPreference> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AppPreferencesCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return AppPreferencesCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppPreferencesCompanion(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5089,6 +7249,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CollectionsTable collections = $CollectionsTable(this);
   late final $PlaybackHistoryEntriesTable playbackHistoryEntries =
       $PlaybackHistoryEntriesTable(this);
+  late final $DownloadTasksTable downloadTasks = $DownloadTasksTable(this);
+  late final $DownloadedTracksTable downloadedTracks = $DownloadedTracksTable(
+    this,
+  );
+  late final $PendingSyncMutationsTable pendingSyncMutations =
+      $PendingSyncMutationsTable(this);
+  late final $AppPreferencesTable appPreferences = $AppPreferencesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5102,6 +7269,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     bookmarks,
     collections,
     playbackHistoryEntries,
+    downloadTasks,
+    downloadedTracks,
+    pendingSyncMutations,
+    appPreferences,
   ];
 }
 
@@ -7585,6 +9756,1127 @@ typedef $$PlaybackHistoryEntriesTableProcessedTableManager =
       PlaybackHistoryEntry,
       PrefetchHooks Function()
     >;
+typedef $$DownloadTasksTableCreateCompanionBuilder =
+    DownloadTasksCompanion Function({
+      required String serverId,
+      required String libraryItemId,
+      required String status,
+      Value<int> bytesDownloaded,
+      Value<int> totalBytes,
+      Value<int> trackCount,
+      Value<int> completedTracks,
+      Value<String?> errorMessage,
+      required int createdAtMs,
+      required int updatedAtMs,
+      Value<int> rowid,
+    });
+typedef $$DownloadTasksTableUpdateCompanionBuilder =
+    DownloadTasksCompanion Function({
+      Value<String> serverId,
+      Value<String> libraryItemId,
+      Value<String> status,
+      Value<int> bytesDownloaded,
+      Value<int> totalBytes,
+      Value<int> trackCount,
+      Value<int> completedTracks,
+      Value<String?> errorMessage,
+      Value<int> createdAtMs,
+      Value<int> updatedAtMs,
+      Value<int> rowid,
+    });
+
+class $$DownloadTasksTableFilterComposer
+    extends Composer<_$AppDatabase, $DownloadTasksTable> {
+  $$DownloadTasksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bytesDownloaded => $composableBuilder(
+    column: $table.bytesDownloaded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get trackCount => $composableBuilder(
+    column: $table.trackCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get completedTracks => $composableBuilder(
+    column: $table.completedTracks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DownloadTasksTableOrderingComposer
+    extends Composer<_$AppDatabase, $DownloadTasksTable> {
+  $$DownloadTasksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bytesDownloaded => $composableBuilder(
+    column: $table.bytesDownloaded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get trackCount => $composableBuilder(
+    column: $table.trackCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get completedTracks => $composableBuilder(
+    column: $table.completedTracks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DownloadTasksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DownloadTasksTable> {
+  $$DownloadTasksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get bytesDownloaded => $composableBuilder(
+    column: $table.bytesDownloaded,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalBytes => $composableBuilder(
+    column: $table.totalBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get trackCount => $composableBuilder(
+    column: $table.trackCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get completedTracks => $composableBuilder(
+    column: $table.completedTracks,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get updatedAtMs => $composableBuilder(
+    column: $table.updatedAtMs,
+    builder: (column) => column,
+  );
+}
+
+class $$DownloadTasksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DownloadTasksTable,
+          DownloadTask,
+          $$DownloadTasksTableFilterComposer,
+          $$DownloadTasksTableOrderingComposer,
+          $$DownloadTasksTableAnnotationComposer,
+          $$DownloadTasksTableCreateCompanionBuilder,
+          $$DownloadTasksTableUpdateCompanionBuilder,
+          (
+            DownloadTask,
+            BaseReferences<_$AppDatabase, $DownloadTasksTable, DownloadTask>,
+          ),
+          DownloadTask,
+          PrefetchHooks Function()
+        > {
+  $$DownloadTasksTableTableManager(_$AppDatabase db, $DownloadTasksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DownloadTasksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DownloadTasksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DownloadTasksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> serverId = const Value.absent(),
+                Value<String> libraryItemId = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> bytesDownloaded = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<int> trackCount = const Value.absent(),
+                Value<int> completedTracks = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> createdAtMs = const Value.absent(),
+                Value<int> updatedAtMs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DownloadTasksCompanion(
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                status: status,
+                bytesDownloaded: bytesDownloaded,
+                totalBytes: totalBytes,
+                trackCount: trackCount,
+                completedTracks: completedTracks,
+                errorMessage: errorMessage,
+                createdAtMs: createdAtMs,
+                updatedAtMs: updatedAtMs,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String serverId,
+                required String libraryItemId,
+                required String status,
+                Value<int> bytesDownloaded = const Value.absent(),
+                Value<int> totalBytes = const Value.absent(),
+                Value<int> trackCount = const Value.absent(),
+                Value<int> completedTracks = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                required int createdAtMs,
+                required int updatedAtMs,
+                Value<int> rowid = const Value.absent(),
+              }) => DownloadTasksCompanion.insert(
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                status: status,
+                bytesDownloaded: bytesDownloaded,
+                totalBytes: totalBytes,
+                trackCount: trackCount,
+                completedTracks: completedTracks,
+                errorMessage: errorMessage,
+                createdAtMs: createdAtMs,
+                updatedAtMs: updatedAtMs,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DownloadTasksTable, DownloadTask>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DownloadTasksTable,
+                    DownloadTask
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DownloadTasksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DownloadTasksTable,
+      DownloadTask,
+      $$DownloadTasksTableFilterComposer,
+      $$DownloadTasksTableOrderingComposer,
+      $$DownloadTasksTableAnnotationComposer,
+      $$DownloadTasksTableCreateCompanionBuilder,
+      $$DownloadTasksTableUpdateCompanionBuilder,
+      (
+        DownloadTask,
+        BaseReferences<_$AppDatabase, $DownloadTasksTable, DownloadTask>,
+      ),
+      DownloadTask,
+      PrefetchHooks Function()
+    >;
+typedef $$DownloadedTracksTableCreateCompanionBuilder =
+    DownloadedTracksCompanion Function({
+      required String serverId,
+      required String libraryItemId,
+      required int trackIndex,
+      required String ino,
+      required String title,
+      required String contentUrl,
+      required String localPath,
+      Value<double> startOffsetSec,
+      Value<double> durationSec,
+      Value<int> expectedBytes,
+      Value<int> downloadedBytes,
+      Value<bool> isComplete,
+      Value<int> rowid,
+    });
+typedef $$DownloadedTracksTableUpdateCompanionBuilder =
+    DownloadedTracksCompanion Function({
+      Value<String> serverId,
+      Value<String> libraryItemId,
+      Value<int> trackIndex,
+      Value<String> ino,
+      Value<String> title,
+      Value<String> contentUrl,
+      Value<String> localPath,
+      Value<double> startOffsetSec,
+      Value<double> durationSec,
+      Value<int> expectedBytes,
+      Value<int> downloadedBytes,
+      Value<bool> isComplete,
+      Value<int> rowid,
+    });
+
+class $$DownloadedTracksTableFilterComposer
+    extends Composer<_$AppDatabase, $DownloadedTracksTable> {
+  $$DownloadedTracksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get trackIndex => $composableBuilder(
+    column: $table.trackIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ino => $composableBuilder(
+    column: $table.ino,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentUrl => $composableBuilder(
+    column: $table.contentUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localPath => $composableBuilder(
+    column: $table.localPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startOffsetSec => $composableBuilder(
+    column: $table.startOffsetSec,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get durationSec => $composableBuilder(
+    column: $table.durationSec,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expectedBytes => $composableBuilder(
+    column: $table.expectedBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DownloadedTracksTableOrderingComposer
+    extends Composer<_$AppDatabase, $DownloadedTracksTable> {
+  $$DownloadedTracksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get trackIndex => $composableBuilder(
+    column: $table.trackIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ino => $composableBuilder(
+    column: $table.ino,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentUrl => $composableBuilder(
+    column: $table.contentUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localPath => $composableBuilder(
+    column: $table.localPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startOffsetSec => $composableBuilder(
+    column: $table.startOffsetSec,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get durationSec => $composableBuilder(
+    column: $table.durationSec,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expectedBytes => $composableBuilder(
+    column: $table.expectedBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DownloadedTracksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DownloadedTracksTable> {
+  $$DownloadedTracksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get trackIndex => $composableBuilder(
+    column: $table.trackIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ino =>
+      $composableBuilder(column: $table.ino, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get contentUrl => $composableBuilder(
+    column: $table.contentUrl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get localPath =>
+      $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<double> get startOffsetSec => $composableBuilder(
+    column: $table.startOffsetSec,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get durationSec => $composableBuilder(
+    column: $table.durationSec,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get expectedBytes => $composableBuilder(
+    column: $table.expectedBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get downloadedBytes => $composableBuilder(
+    column: $table.downloadedBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isComplete => $composableBuilder(
+    column: $table.isComplete,
+    builder: (column) => column,
+  );
+}
+
+class $$DownloadedTracksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DownloadedTracksTable,
+          DownloadedTrack,
+          $$DownloadedTracksTableFilterComposer,
+          $$DownloadedTracksTableOrderingComposer,
+          $$DownloadedTracksTableAnnotationComposer,
+          $$DownloadedTracksTableCreateCompanionBuilder,
+          $$DownloadedTracksTableUpdateCompanionBuilder,
+          (
+            DownloadedTrack,
+            BaseReferences<
+              _$AppDatabase,
+              $DownloadedTracksTable,
+              DownloadedTrack
+            >,
+          ),
+          DownloadedTrack,
+          PrefetchHooks Function()
+        > {
+  $$DownloadedTracksTableTableManager(
+    _$AppDatabase db,
+    $DownloadedTracksTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DownloadedTracksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DownloadedTracksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DownloadedTracksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> serverId = const Value.absent(),
+                Value<String> libraryItemId = const Value.absent(),
+                Value<int> trackIndex = const Value.absent(),
+                Value<String> ino = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> contentUrl = const Value.absent(),
+                Value<String> localPath = const Value.absent(),
+                Value<double> startOffsetSec = const Value.absent(),
+                Value<double> durationSec = const Value.absent(),
+                Value<int> expectedBytes = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DownloadedTracksCompanion(
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                trackIndex: trackIndex,
+                ino: ino,
+                title: title,
+                contentUrl: contentUrl,
+                localPath: localPath,
+                startOffsetSec: startOffsetSec,
+                durationSec: durationSec,
+                expectedBytes: expectedBytes,
+                downloadedBytes: downloadedBytes,
+                isComplete: isComplete,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String serverId,
+                required String libraryItemId,
+                required int trackIndex,
+                required String ino,
+                required String title,
+                required String contentUrl,
+                required String localPath,
+                Value<double> startOffsetSec = const Value.absent(),
+                Value<double> durationSec = const Value.absent(),
+                Value<int> expectedBytes = const Value.absent(),
+                Value<int> downloadedBytes = const Value.absent(),
+                Value<bool> isComplete = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DownloadedTracksCompanion.insert(
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                trackIndex: trackIndex,
+                ino: ino,
+                title: title,
+                contentUrl: contentUrl,
+                localPath: localPath,
+                startOffsetSec: startOffsetSec,
+                durationSec: durationSec,
+                expectedBytes: expectedBytes,
+                downloadedBytes: downloadedBytes,
+                isComplete: isComplete,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DownloadedTracksTable, DownloadedTrack>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DownloadedTracksTable,
+                    DownloadedTrack
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DownloadedTracksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DownloadedTracksTable,
+      DownloadedTrack,
+      $$DownloadedTracksTableFilterComposer,
+      $$DownloadedTracksTableOrderingComposer,
+      $$DownloadedTracksTableAnnotationComposer,
+      $$DownloadedTracksTableCreateCompanionBuilder,
+      $$DownloadedTracksTableUpdateCompanionBuilder,
+      (
+        DownloadedTrack,
+        BaseReferences<_$AppDatabase, $DownloadedTracksTable, DownloadedTrack>,
+      ),
+      DownloadedTrack,
+      PrefetchHooks Function()
+    >;
+typedef $$PendingSyncMutationsTableCreateCompanionBuilder =
+    PendingSyncMutationsCompanion Function({
+      Value<int> id,
+      required String serverId,
+      required String libraryItemId,
+      required String mutationType,
+      required String payloadJson,
+      required int createdAtMs,
+      Value<int> retryCount,
+      Value<String?> lastError,
+    });
+typedef $$PendingSyncMutationsTableUpdateCompanionBuilder =
+    PendingSyncMutationsCompanion Function({
+      Value<int> id,
+      Value<String> serverId,
+      Value<String> libraryItemId,
+      Value<String> mutationType,
+      Value<String> payloadJson,
+      Value<int> createdAtMs,
+      Value<int> retryCount,
+      Value<String?> lastError,
+    });
+
+class $$PendingSyncMutationsTableFilterComposer
+    extends Composer<_$AppDatabase, $PendingSyncMutationsTable> {
+  $$PendingSyncMutationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mutationType => $composableBuilder(
+    column: $table.mutationType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PendingSyncMutationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PendingSyncMutationsTable> {
+  $$PendingSyncMutationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mutationType => $composableBuilder(
+    column: $table.mutationType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PendingSyncMutationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PendingSyncMutationsTable> {
+  $$PendingSyncMutationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get libraryItemId => $composableBuilder(
+    column: $table.libraryItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mutationType => $composableBuilder(
+    column: $table.mutationType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$PendingSyncMutationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PendingSyncMutationsTable,
+          PendingSyncMutation,
+          $$PendingSyncMutationsTableFilterComposer,
+          $$PendingSyncMutationsTableOrderingComposer,
+          $$PendingSyncMutationsTableAnnotationComposer,
+          $$PendingSyncMutationsTableCreateCompanionBuilder,
+          $$PendingSyncMutationsTableUpdateCompanionBuilder,
+          (
+            PendingSyncMutation,
+            BaseReferences<
+              _$AppDatabase,
+              $PendingSyncMutationsTable,
+              PendingSyncMutation
+            >,
+          ),
+          PendingSyncMutation,
+          PrefetchHooks Function()
+        > {
+  $$PendingSyncMutationsTableTableManager(
+    _$AppDatabase db,
+    $PendingSyncMutationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingSyncMutationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingSyncMutationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PendingSyncMutationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> serverId = const Value.absent(),
+                Value<String> libraryItemId = const Value.absent(),
+                Value<String> mutationType = const Value.absent(),
+                Value<String> payloadJson = const Value.absent(),
+                Value<int> createdAtMs = const Value.absent(),
+                Value<int> retryCount = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+              }) => PendingSyncMutationsCompanion(
+                id: id,
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                mutationType: mutationType,
+                payloadJson: payloadJson,
+                createdAtMs: createdAtMs,
+                retryCount: retryCount,
+                lastError: lastError,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String serverId,
+                required String libraryItemId,
+                required String mutationType,
+                required String payloadJson,
+                required int createdAtMs,
+                Value<int> retryCount = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+              }) => PendingSyncMutationsCompanion.insert(
+                id: id,
+                serverId: serverId,
+                libraryItemId: libraryItemId,
+                mutationType: mutationType,
+                payloadJson: payloadJson,
+                createdAtMs: createdAtMs,
+                retryCount: retryCount,
+                lastError: lastError,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PendingSyncMutationsTable, PendingSyncMutation>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PendingSyncMutationsTable,
+                    PendingSyncMutation
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PendingSyncMutationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PendingSyncMutationsTable,
+      PendingSyncMutation,
+      $$PendingSyncMutationsTableFilterComposer,
+      $$PendingSyncMutationsTableOrderingComposer,
+      $$PendingSyncMutationsTableAnnotationComposer,
+      $$PendingSyncMutationsTableCreateCompanionBuilder,
+      $$PendingSyncMutationsTableUpdateCompanionBuilder,
+      (
+        PendingSyncMutation,
+        BaseReferences<
+          _$AppDatabase,
+          $PendingSyncMutationsTable,
+          PendingSyncMutation
+        >,
+      ),
+      PendingSyncMutation,
+      PrefetchHooks Function()
+    >;
+typedef $$AppPreferencesTableCreateCompanionBuilder =
+    AppPreferencesCompanion Function({
+      required String key,
+      required String value,
+      Value<int> rowid,
+    });
+typedef $$AppPreferencesTableUpdateCompanionBuilder =
+    AppPreferencesCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> rowid,
+    });
+
+class $$AppPreferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $AppPreferencesTable> {
+  $$AppPreferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AppPreferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppPreferencesTable> {
+  $$AppPreferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AppPreferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppPreferencesTable> {
+  $$AppPreferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+}
+
+class $$AppPreferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AppPreferencesTable,
+          AppPreference,
+          $$AppPreferencesTableFilterComposer,
+          $$AppPreferencesTableOrderingComposer,
+          $$AppPreferencesTableAnnotationComposer,
+          $$AppPreferencesTableCreateCompanionBuilder,
+          $$AppPreferencesTableUpdateCompanionBuilder,
+          (
+            AppPreference,
+            BaseReferences<_$AppDatabase, $AppPreferencesTable, AppPreference>,
+          ),
+          AppPreference,
+          PrefetchHooks Function()
+        > {
+  $$AppPreferencesTableTableManager(
+    _$AppDatabase db,
+    $AppPreferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AppPreferencesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AppPreferencesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AppPreferencesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> key = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => AppPreferencesCompanion(key: key, value: value, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String key,
+                required String value,
+                Value<int> rowid = const Value.absent(),
+              }) => AppPreferencesCompanion.insert(
+                key: key,
+                value: value,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AppPreferencesTable, AppPreference>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $AppPreferencesTable,
+                    AppPreference
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AppPreferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AppPreferencesTable,
+      AppPreference,
+      $$AppPreferencesTableFilterComposer,
+      $$AppPreferencesTableOrderingComposer,
+      $$AppPreferencesTableAnnotationComposer,
+      $$AppPreferencesTableCreateCompanionBuilder,
+      $$AppPreferencesTableUpdateCompanionBuilder,
+      (
+        AppPreference,
+        BaseReferences<_$AppDatabase, $AppPreferencesTable, AppPreference>,
+      ),
+      AppPreference,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7608,4 +10900,12 @@ class $AppDatabaseManager {
         _db,
         _db.playbackHistoryEntries,
       );
+  $$DownloadTasksTableTableManager get downloadTasks =>
+      $$DownloadTasksTableTableManager(_db, _db.downloadTasks);
+  $$DownloadedTracksTableTableManager get downloadedTracks =>
+      $$DownloadedTracksTableTableManager(_db, _db.downloadedTracks);
+  $$PendingSyncMutationsTableTableManager get pendingSyncMutations =>
+      $$PendingSyncMutationsTableTableManager(_db, _db.pendingSyncMutations);
+  $$AppPreferencesTableTableManager get appPreferences =>
+      $$AppPreferencesTableTableManager(_db, _db.appPreferences);
 }

@@ -129,6 +129,62 @@ class AbsChapterDto {
   final String title;
 }
 
+/// Audio file track entry inside an expanded Audiobookshelf library item.
+@immutable
+class AbsAudioFileDto {
+  /// Creates an [AbsAudioFileDto].
+  const new({
+    required this.index,
+    required this.ino,
+    required this.durationSec,
+    required this.sizeBytes,
+    required this.filename,
+    this.mimeType,
+    this.title = '',
+  });
+
+  /// Parses an [AbsAudioFileDto] from JSON.
+  factory fromJson(Map<String, dynamic> json) {
+    final metadata = json['metadata'] is Map<String, dynamic>
+        ? json['metadata'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    final metaTags = json['metaTags'] is Map<String, dynamic>
+        ? json['metaTags'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    final filename = metadata['filename'] as String? ?? '';
+    return AbsAudioFileDto(
+      index: (json['index'] as num?)?.toInt() ?? 0,
+      ino: json['ino']?.toString() ?? '',
+      durationSec: (json['duration'] as num?)?.toDouble() ?? 0,
+      sizeBytes: (metadata['size'] as num?)?.toInt() ?? 0,
+      filename: filename,
+      mimeType: json['mimeType'] as String?,
+      title: metaTags['tagTitle'] as String? ?? filename,
+    );
+  }
+
+  /// Zero-based track index.
+  final int index;
+
+  /// Server file `ino` used with `GET /api/items/:id/file/:ino`.
+  final String ino;
+
+  /// Track duration in seconds.
+  final double durationSec;
+
+  /// Exact file size in bytes (0 if omitted by server).
+  final int sizeBytes;
+
+  /// Original file name.
+  final String filename;
+
+  /// Optional MIME type.
+  final String? mimeType;
+
+  /// Display title derived from embedded tags or filename.
+  final String title;
+}
+
 /// Parsed Audiobookshelf library item DTO (summary or expanded).
 @immutable
 class AbsBookItemDto {
@@ -149,6 +205,7 @@ class AbsBookItemDto {
     required this.addedAtMs,
     required this.updatedAtMs,
     required this.chapters,
+    this.audioFiles = const <AbsAudioFileDto>[],
     this.subtitle,
     this.description,
     this.publisher,
@@ -178,6 +235,15 @@ class AbsBookItemDto {
               .toList(growable: false)
         : const <AbsChapterDto>[];
 
+    final rawAudioFiles = media['audioFiles'];
+    final audioFiles = rawAudioFiles is List
+        ? rawAudioFiles
+              .whereType<Map<String, dynamic>>()
+              .map(AbsAudioFileDto.fromJson)
+              .where((file) => file.ino.isNotEmpty)
+              .toList(growable: false)
+        : const <AbsAudioFileDto>[];
+
     final numChapters =
         (media['numChapters'] as num?)?.toInt() ?? chapters.length;
     final coverPath = media['coverPath'] as String?;
@@ -202,6 +268,7 @@ class AbsBookItemDto {
       addedAtMs: (json['addedAt'] as num?)?.toInt() ?? 0,
       updatedAtMs: (json['updatedAt'] as num?)?.toInt() ?? 0,
       chapters: chapters,
+      audioFiles: audioFiles,
     );
   }
 
@@ -261,6 +328,9 @@ class AbsBookItemDto {
 
   /// Chapters list (populated on expanded item responses).
   final List<AbsChapterDto> chapters;
+
+  /// Audio file tracks (populated on expanded item responses).
+  final List<AbsAudioFileDto> audioFiles;
 
   static List<AbsAuthorDto> _parseAuthors(Map<String, dynamic> metadata) {
     final raw = metadata['authors'];

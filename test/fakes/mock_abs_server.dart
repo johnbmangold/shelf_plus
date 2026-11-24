@@ -128,6 +128,15 @@ class MockAbsServer {
   /// Recorded `DELETE /api/me/item/:id/bookmark/:time` paths.
   final List<String> deletedBookmarkPaths = <String>[];
 
+  /// Recorded `PATCH /api/me/progress/:id` payloads.
+  final List<Map<String, dynamic>> patchedProgress = <Map<String, dynamic>>[];
+
+  /// Recorded `Range` headers observed on `/api/items/:id/file/:ino`.
+  final List<String?> audioFileRangeHeaders = <String?>[];
+
+  /// Deterministic audio payload served for `/api/items/:id/file/:ino`.
+  List<int> mockAudioBytes = List<int>.generate(2048, (i) => i % 251);
+
   int _tokenGeneration = 1;
   int _sessionCounter = 0;
 
@@ -454,6 +463,59 @@ class MockAbsServer {
       }
       deletedBookmarkPaths.add(normalizedEndpoint);
       return _jsonResponse(200, <String, Object?>{'success': true});
+    }
+
+    if (request.method == 'PATCH' &&
+        normalizedEndpoint.startsWith('/api/me/progress/')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final bodyText = await request.readAsString();
+      final decoded = jsonDecode(bodyText) as Map<String, dynamic>;
+      patchedProgress.add(decoded);
+      return _jsonResponse(200, <String, Object?>{'success': true});
+    }
+
+    if (request.method == 'GET' &&
+        normalizedEndpoint.startsWith('/api/items/') &&
+        normalizedEndpoint.contains('/file/')) {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      final rangeHeader = _headerIgnoreCase(request.headers, 'range');
+      audioFileRangeHeaders.add(rangeHeader);
+      final total = mockAudioBytes.length;
+      if (rangeHeader != null && rangeHeader.startsWith('bytes=')) {
+        final spec = rangeHeader.substring('bytes='.length).split('-');
+        final start = int.tryParse(spec[0]) ?? 0;
+        final end = spec.length > 1 && spec[1].isNotEmpty
+            ? (int.tryParse(spec[1]) ?? total - 1)
+            : total - 1;
+        final safeStart = start.clamp(0, total);
+        final safeEnd = end.clamp(safeStart, total - 1);
+        final slice = mockAudioBytes.sublist(safeStart, safeEnd + 1);
+        return Response(
+          206,
+          body: slice,
+          headers: <String, String>{
+            'content-type': 'audio/mp4',
+            'accept-ranges': 'bytes',
+            'content-range': 'bytes $safeStart-$safeEnd/$total',
+            'content-length': '${slice.length}',
+          },
+        );
+      }
+      return Response(
+        200,
+        body: mockAudioBytes,
+        headers: <String, String>{
+          'content-type': 'audio/mp4',
+          'accept-ranges': 'bytes',
+          'content-length': '$total',
+        },
+      );
     }
 
     return _jsonResponse(404, <String, Object?>{'error': 'Not found'});

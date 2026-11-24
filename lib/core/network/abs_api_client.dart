@@ -67,6 +67,10 @@ class AbsApiClient {
   final Dio _unauthenticatedDio;
   final Dio _authenticatedDio;
 
+  /// Exposes the authenticated [Dio] instance for streaming downloads with
+  /// custom proxy headers and serialized token refresh.
+  Dio get authenticatedDio => _authenticatedDio;
+
   /// Validates [baseUrl], verifies `/ping`, and inspects `/status`.
   Future<ServerProbeResult> probeServer({
     required String baseUrl,
@@ -571,6 +575,43 @@ class AbsApiClient {
     } on DioException catch (err) {
       throw _mapDioException(err);
     }
+  }
+
+  /// Updates server listening progress (`PATCH /api/me/progress/:id`).
+  Future<void> patchMediaProgress({
+    required String baseUrl,
+    required String itemId,
+    required double currentTimeSec,
+    required double durationSec,
+    required bool isFinished,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/me/progress/$itemId');
+    final progress = durationSec > 0
+        ? (currentTimeSec / durationSec).clamp(0.0, 1.0)
+        : 0.0;
+    try {
+      await _authenticatedDio.patch<void>(
+        url,
+        data: <String, Object?>{
+          'currentTime': currentTimeSec,
+          'duration': durationSec,
+          'progress': progress,
+          'isFinished': isFinished,
+        },
+      );
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Builds a subpath-safe download URL for audio file [ino] of [itemId].
+  static String buildAudioFileUrl({
+    required String baseUrl,
+    required String itemId,
+    required String ino,
+  }) {
+    return AbsUrlBuilder.resolve(baseUrl, '/api/items/$itemId/file/$ino');
   }
 
   /// Builds a subpath-safe cover image URL for [itemId].

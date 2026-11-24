@@ -47,23 +47,23 @@ void main() {
           shakeDetector: fakeShake,
         );
 
-        await tester.runAsync(() async {
-          await deps.database.recordPlaybackHistory(
-            serverId: 'test-server-1',
-            libraryItemId: 'item-1',
-            positionSec: 420,
-            reason: 'play',
-            createdAtMs: 1000,
-          );
+        await deps.database.recordPlaybackHistory(
+          serverId: 'test-server-1',
+          libraryItemId: 'item-1',
+          positionSec: 420,
+          reason: 'play',
+          createdAtMs: 1000,
+        );
 
-          // Start playback using FakeAudioPlayerEngine + offline HTTP stub.
-          await deps.playerController.playBook(
+        // Start playback using FakeAudioPlayerEngine + offline HTTP stub.
+        await tester.pumpUntilComplete(
+          deps.playerController.playBook(
             AbsLibraryFixtures.bookOne,
             chapters: chapters,
             startPositionSec: 600,
-          );
-          await fakeEngine.play();
-        });
+          ),
+        );
+        await fakeEngine.play();
 
         await tester.pumpShelfApp(dependencies: deps);
 
@@ -166,14 +166,14 @@ void main() {
           deps.dispose();
           await Future<void>.delayed(Duration.zero);
         });
-        await tester.runAsync(() async {
-          await deps.playerController.playBook(
+        await tester.pumpUntilComplete(
+          deps.playerController.playBook(
             AbsLibraryFixtures.bookOne,
             chapters: const <ChapterInfo>[
               ChapterInfo(index: 0, title: 'Ch 1', startSec: 0, endSec: 600),
             ],
-          );
-        });
+          ),
+        );
 
         await tester.pumpLocalizedWidget(
           FullPlayerScreen(
@@ -234,20 +234,22 @@ void main() {
         check(find.text('Nothing playing right now').evaluate().length)
             .equals(1);
 
-        await tester.runAsync(() async {
-          await deps.playerController.playBook(
+        await tester.pumpUntilComplete(
+          deps.playerController.playBook(
             AbsLibraryFixtures.bookOne,
             chapters: const <ChapterInfo>[
               ChapterInfo(index: 0, title: 'Ch 1', startSec: 0, endSec: 600),
               ChapterInfo(index: 1, title: 'Ch 2', startSec: 600, endSec: 1200),
             ],
             startPositionSec: 300,
-          );
-          await deps.playerController.createBookmark(
+          ),
+        );
+        await tester.pumpUntilComplete(
+          deps.playerController.createBookmark(
             title: 'Quote 1',
             note: 'Remember this',
-          );
-        });
+          ),
+        );
         await tester.pumpAndSettle();
 
         // Exercise transport buttons on FullPlayerScreen.

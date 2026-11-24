@@ -9,6 +9,8 @@ import 'package:shelf_plus/core/theme/theme_controller.dart';
 import 'package:shelf_plus/core/widgets/book_cover_image.dart';
 import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
 import 'package:shelf_plus/features/book_detail/presentation/book_detail_view_model.dart';
+import 'package:shelf_plus/features/downloads/domain/download_models.dart';
+import 'package:shelf_plus/features/downloads/presentation/download_controller.dart';
 import 'package:shelf_plus/features/library/domain/library_models.dart';
 import 'package:shelf_plus/features/library/domain/library_repository.dart';
 import 'package:shelf_plus/features/player/presentation/player_controller.dart';
@@ -27,6 +29,7 @@ class BookDetailScreen extends StatefulWidget {
     required this.loadImageHeaders,
     required this.logger,
     this.playerController,
+    this.downloadController,
     this.onOpenPlayer,
     this.enableNetworkImages = true,
     this.autoFetchDetail = true,
@@ -56,6 +59,9 @@ class BookDetailScreen extends StatefulWidget {
 
   /// Optional application player controller used when starting playback.
   final PlayerController? playerController;
+
+  /// Optional download manager enabling offline downloads from Book Detail.
+  final DownloadController? downloadController;
 
   /// Callback opening the full-screen audio player route.
   final VoidCallback? onOpenPlayer;
@@ -183,6 +189,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 enableNetworkImages: widget.enableNetworkImages,
                 isLoadingDetail: vm.isLoadingDetail,
                 playerController: widget.playerController,
+                downloadController: widget.downloadController,
                 onOpenPlayer: widget.onOpenPlayer,
               );
             },
@@ -201,6 +208,7 @@ class _BookDetailView extends StatelessWidget {
     required this.enableNetworkImages,
     required this.isLoadingDetail,
     this.playerController,
+    this.downloadController,
     this.onOpenPlayer,
   });
 
@@ -210,6 +218,7 @@ class _BookDetailView extends StatelessWidget {
   final bool enableNetworkImages;
   final bool isLoadingDetail;
   final PlayerController? playerController;
+  final DownloadController? downloadController;
   final VoidCallback? onOpenPlayer;
 
   @override
@@ -340,19 +349,9 @@ class _BookDetailView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        OutlinedButton.icon(
-                          key: const Key('book_detail_download_button'),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context)
-                              ..hideCurrentSnackBar()
-                              ..showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.bookDetailDownloadPhase4),
-                                ),
-                              );
-                          },
-                          icon: const Icon(Icons.download_outlined),
-                          label: Text(l10n.bookDetailDownload),
+                        _BookDownloadButton(
+                          book: book,
+                          downloadController: downloadController,
                         ),
                       ],
                     ),
@@ -578,6 +577,82 @@ class _BookmarksTab extends StatelessWidget {
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+class _BookDownloadButton extends StatelessWidget {
+  const new({required this.book, required this.downloadController});
+
+  final BookSummary book;
+  final DownloadController? downloadController;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final controller = downloadController;
+    if (controller == null) {
+      return OutlinedButton.icon(
+        key: const Key('book_detail_download_button'),
+        onPressed: () {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(content: Text(l10n.bookDetailDownloadPhase4)),
+            );
+        },
+        icon: const Icon(Icons.download_outlined),
+        label: Text(l10n.bookDetailDownload),
+      );
+    }
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        final task = controller.taskForBook(book.id);
+        final status = task == null ? null : parseDownloadStatus(task.status);
+        final icon = switch (status) {
+          DownloadStatus.completed => Icons.download_done_rounded,
+          DownloadStatus.downloading ||
+          DownloadStatus.queued => Icons.pause_rounded,
+          DownloadStatus.paused ||
+          DownloadStatus.failed => Icons.refresh_rounded,
+          null => Icons.download_outlined,
+        };
+        final percent = task != null && task.totalBytes > 0
+            ? ((task.bytesDownloaded / task.totalBytes) * 100)
+                  .clamp(0, 100)
+                  .round()
+            : null;
+        final label = switch (status) {
+          DownloadStatus.completed => l10n.downloadsStatusCompleted,
+          DownloadStatus.downloading =>
+            percent != null ? '$percent%' : l10n.downloadsStatusDownloading,
+          DownloadStatus.queued => l10n.downloadsStatusQueued,
+          DownloadStatus.paused => l10n.downloadsResume,
+          DownloadStatus.failed => l10n.downloadsRetry,
+          null => l10n.bookDetailDownload,
+        };
+        return OutlinedButton.icon(
+          key: const Key('book_detail_download_button'),
+          onPressed: () {
+            switch (status) {
+              case DownloadStatus.completed:
+                unawaited(controller.cancelAndDeleteDownload(book.id));
+              case DownloadStatus.downloading:
+              case DownloadStatus.queued:
+                unawaited(controller.pauseDownload(book.id));
+              case DownloadStatus.paused:
+              case DownloadStatus.failed:
+                unawaited(controller.resumeDownload(book.id));
+              case null:
+                unawaited(controller.enqueueDownload(book));
+            }
+          },
+          icon: Icon(icon),
+          label: Text(label),
         );
       },
     );

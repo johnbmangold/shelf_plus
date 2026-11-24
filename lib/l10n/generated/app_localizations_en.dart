@@ -522,4 +522,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playerHistoryReasonBookmark => 'Bookmark';
+
+  @override
+  String get playerStreamLocal => 'Downloaded';
+
+  @override
+  String downloadsStorageUsed(String size) {
+    return '$size used on device';
+  }
+
+  @override
+  String get downloadsWifiOnlyTitle => 'Download on Wi-Fi only';
+
+  @override
+  String get downloadsWifiOnlySubtitle =>
+      'Pause transfers automatically on cellular networks';
+
+  @override
+  String get downloadsAutoDeleteTitle => 'Auto-delete finished books';
+
+  @override
+  String get downloadsAutoDeleteSubtitle =>
+      'Remove downloaded files once an audiobook is finished';
+
+  @override
+  String get downloadsClearAll => 'Clear all';
+
+  @override
+  String get downloadsStatusQueued => 'Queued';
+
+  @override
+  String get downloadsStatusDownloading => 'Downloading';
+
+  @override
+  String get downloadsStatusPaused => 'Paused';
+
+  @override
+  String get downloadsStatusCompleted => 'Downloaded';
+
+  @override
+  String get downloadsStatusFailed => 'Failed';
+
+  @override
+  String get downloadsWaitingForWifi => 'Waiting for Wi-Fi';
+
+  @override
+  String get downloadsPause => 'Pause';
+
+  @override
+  String get downloadsResume => 'Resume';
+
+  @override
+  String get downloadsRetry => 'Retry';
+
+  @override
+  String get downloadsDelete => 'Delete';
+
+  @override
+  String get downloadsDeleteTitle => 'Remove offline files?';
+
+  @override
+  String get downloadsDeleteBody =>
+      'This deletes downloaded audio from this device without affecting your Audiobookshelf server.';
+
+  @override
+  String get downloadsCancel => 'Cancel';
+
+  @override
+  String syncPendingBadge(int count) {
+    return '$count pending sync';
+  }
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get syncConflictBannerTitle => 'Progress conflict detected';
+
+  @override
+  String syncConflictBannerSubtitle(int count) {
+    return '$count audiobook(s) have newer progress on both this device and the server.';
+  }
+
+  @override
+  String get syncConflictResolve => 'Resolve';
+
+  @override
+  String get syncConflictSheetTitle => 'Choose listening position';
+
+  @override
+  String get syncConflictDeviceLabel => 'This device';
+
+  @override
+  String get syncConflictServerLabel => 'Server';
+
+  @override
+  String get syncConflictKeepDevice => 'Keep device position';
+
+  @override
+  String get syncConflictUseServer => 'Use server position';
 }

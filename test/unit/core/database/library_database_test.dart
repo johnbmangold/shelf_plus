@@ -166,5 +166,79 @@ void main() {
       final remainingHistory = await db.watchPlaybackHistory('s1', 'b1').first;
       check(remainingHistory).isEmpty;
     });
+
+    test('persists preferences, download tasks/tracks, sync mutations, and '
+        'preserves bookmark notes across server sync', () async {
+      await db.upsertLibraryItems('s1', <LibraryItemsCompanion>[
+        LibraryItemsCompanion.insert(
+          serverId: 's1',
+          id: 'b1',
+          libraryId: 'lib-1',
+          title: 'Project Hail Mary',
+        ),
+      ]);
+
+      await db.setPreference('downloads_wifi_only', 'false');
+      check(await db.getPreference('downloads_wifi_only')).equals('false');
+
+      // Bookmark note survives replaceBookmarksForServer.
+      await db.upsertBookmark(
+        BookmarksCompanion.insert(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          timeSec: 120,
+          title: 'Launch',
+          note: const Value<String?>('Local annotation'),
+        ),
+      );
+      await db.replaceBookmarksForServer('s1', <BookmarksCompanion>[
+        BookmarksCompanion.insert(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          timeSec: 120,
+          title: 'Launch',
+        ),
+      ]);
+      final preserved = await db.watchBookmarks('s1', 'b1').first;
+      check(preserved.length).equals(1);
+      check(preserved.first.note).equals('Local annotation');
+
+      // Download task, tracks, & pending mutations cascade-delete cleanly.
+      await db.upsertDownloadTask(
+        DownloadTasksCompanion.insert(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          status: 'downloading',
+          createdAtMs: 100,
+          updatedAtMs: 200,
+        ),
+      );
+      await db.replaceDownloadedTracks('s1', 'b1', <DownloadedTracksCompanion>[
+        DownloadedTracksCompanion.insert(
+          serverId: 's1',
+          libraryItemId: 'b1',
+          trackIndex: 0,
+          ino: 'ino-1',
+          title: 'Part 1',
+          contentUrl: '/api/items/b1/file/ino-1',
+          localPath: '/tmp/part1.m4b',
+        ),
+      ]);
+      await db.enqueueSyncMutation(
+        serverId: 's1',
+        libraryItemId: 'b1',
+        mutationType: 'progress',
+        payloadJson: '{"currentTimeSec":250}',
+        createdAtMs: 300,
+      );
+      check((await db.watchDownloadedBooks('s1').first).length).equals(1);
+      check((await db.getDownloadedTracks('s1', 'b1')).length).equals(1);
+      check((await db.getPendingSyncMutations('s1')).length).equals(1);
+
+      await db.deleteLibraryItem('s1', 'b1');
+      check(await db.getDownloadTask('s1', 'b1')).isNull;
+      check(await db.getDownloadedTracks('s1', 'b1')).isEmpty;
+      check(await db.getPendingSyncMutations('s1')).isEmpty;
+    });
   });
 }

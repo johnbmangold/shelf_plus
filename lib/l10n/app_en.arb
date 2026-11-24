@@ -678,5 +678,140 @@
   "playerHistoryReasonBookmark": "Bookmark",
   "@playerHistoryReasonBookmark": {
     "description": "History reason badge for bookmark jump."
+  },
+  "playerStreamLocal": "Downloaded",
+  "@playerStreamLocal": {
+    "description": "Stream badge when playing offline downloaded files."
+  },
+  "downloadsStorageUsed": "{size} used on device",
+  "@downloadsStorageUsed": {
+    "description": "Total offline audio storage used on this device.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsWifiOnlyTitle": "Download on Wi-Fi only",
+  "@downloadsWifiOnlyTitle": {
+    "description": "Switch label restricting downloads to Wi-Fi networks."
+  },
+  "downloadsWifiOnlySubtitle": "Pause transfers automatically on cellular networks",
+  "@downloadsWifiOnlySubtitle": {
+    "description": "Switch subtitle for Wi-Fi only downloads."
+  },
+  "downloadsAutoDeleteTitle": "Auto-delete finished books",
+  "@downloadsAutoDeleteTitle": {
+    "description": "Switch label to remove offline files when finished."
+  },
+  "downloadsAutoDeleteSubtitle": "Remove downloaded files once an audiobook is finished",
+  "@downloadsAutoDeleteSubtitle": {
+    "description": "Switch subtitle for auto-deleting finished downloads."
+  },
+  "downloadsClearAll": "Clear all",
+  "@downloadsClearAll": {
+    "description": "Button to remove all downloaded offline audiobooks."
+  },
+  "downloadsStatusQueued": "Queued",
+  "@downloadsStatusQueued": {
+    "description": "Download task status badge when queued."
+  },
+  "downloadsStatusDownloading": "Downloading",
+  "@downloadsStatusDownloading": {
+    "description": "Download task status badge when actively transferring."
+  },
+  "downloadsStatusPaused": "Paused",
+  "@downloadsStatusPaused": {
+    "description": "Download task status badge when paused."
+  },
+  "downloadsStatusCompleted": "Downloaded",
+  "@downloadsStatusCompleted": {
+    "description": "Download task status badge when finished."
+  },
+  "downloadsStatusFailed": "Failed",
+  "@downloadsStatusFailed": {
+    "description": "Download task status badge when an error occurred."
+  },
+  "downloadsWaitingForWifi": "Waiting for Wi-Fi",
+  "@downloadsWaitingForWifi": {
+    "description": "Subtitle when a download is paused awaiting Wi-Fi."
+  },
+  "downloadsPause": "Pause",
+  "@downloadsPause": {
+    "description": "Action button to pause an active download."
+  },
+  "downloadsResume": "Resume",
+  "@downloadsResume": {
+    "description": "Action button to resume a paused download."
+  },
+  "downloadsRetry": "Retry",
+  "@downloadsRetry": {
+    "description": "Action button to retry a failed download."
+  },
+  "downloadsDelete": "Delete",
+  "@downloadsDelete": {
+    "description": "Action button to delete offline files."
+  },
+  "downloadsDeleteTitle": "Remove offline files?",
+  "@downloadsDeleteTitle": {
+    "description": "Confirmation dialog title when deleting offline book files."
+  },
+  "downloadsDeleteBody": "This deletes downloaded audio from this device without affecting your Audiobookshelf server.",
+  "@downloadsDeleteBody": {
+    "description": "Confirmation dialog body when deleting offline book files."
+  },
+  "downloadsCancel": "Cancel",
+  "@downloadsCancel": {
+    "description": "Cancel button in offline download confirmation dialog."
+  },
+  "syncPendingBadge": "{count} pending sync",
+  "@syncPendingBadge": {
+    "description": "Chip displaying queued offline sync mutations.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncNow": "Sync now",
+  "@syncNow": {
+    "description": "Button to flush queued offline sync mutations immediately."
+  },
+  "syncConflictBannerTitle": "Progress conflict detected",
+  "@syncConflictBannerTitle": {
+    "description": "Warning banner title when local and server progress diverge."
+  },
+  "syncConflictBannerSubtitle": "{count} audiobook(s) have newer progress on both this device and the server.",
+  "@syncConflictBannerSubtitle": {
+    "description": "Warning banner subtitle for diverged progress.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncConflictResolve": "Resolve",
+  "@syncConflictResolve": {
+    "description": "Button to open the sync conflict resolution sheet."
+  },
+  "syncConflictSheetTitle": "Choose listening position",
+  "@syncConflictSheetTitle": {
+    "description": "Title for the sync conflict resolution bottom sheet."
+  },
+  "syncConflictDeviceLabel": "This device",
+  "@syncConflictDeviceLabel": {
+    "description": "Label for local listening timestamp in conflict sheet."
+  },
+  "syncConflictServerLabel": "Server",
+  "@syncConflictServerLabel": {
+    "description": "Label for server listening timestamp in conflict sheet."
+  },
+  "syncConflictKeepDevice": "Keep device position",
+  "@syncConflictKeepDevice": {
+    "description": "Button choosing local progress over server progress."
+  },
+  "syncConflictUseServer": "Use server position",
+  "@syncConflictUseServer": {
+    "description": "Button choosing server progress over local progress."
   }
 }

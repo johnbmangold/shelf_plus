@@ -60,6 +60,9 @@ class _ShelfPlusAppState extends State<ShelfPlusApp>
       return;
     }
     unawaited(_connectSocket(session.baseUrl, session.customHeaders));
+    unawaited(
+      widget.dependencies.offlineSyncController.flushPendingMutations(),
+    );
   }
 
   Future<void> _connectSocket(

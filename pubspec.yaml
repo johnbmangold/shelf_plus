@@ -10,6 +10,7 @@ dependencies:
   audio_service: ^0.18.19
   audio_session: ^0.2.4
   cached_network_image: ^4.0.7
+  connectivity_plus: ^7.3.2
   dio: ^5.11.1
   drift: ^2.35.4
   drift_flutter: ^0.3.1

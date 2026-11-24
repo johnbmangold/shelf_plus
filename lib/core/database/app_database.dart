@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:shelf_plus/core/database/tables/app_preferences_table.dart';
 import 'package:shelf_plus/core/database/tables/bookmarks_table.dart';
 import 'package:shelf_plus/core/database/tables/chapters_table.dart';
 import 'package:shelf_plus/core/database/tables/collections_table.dart';
+import 'package:shelf_plus/core/database/tables/download_tasks_table.dart';
+import 'package:shelf_plus/core/database/tables/downloaded_tracks_table.dart';
 import 'package:shelf_plus/core/database/tables/libraries_table.dart';
 import 'package:shelf_plus/core/database/tables/library_items_table.dart';
 import 'package:shelf_plus/core/database/tables/media_progress_table.dart';
+import 'package:shelf_plus/core/database/tables/pending_sync_mutations_table.dart';
 import 'package:shelf_plus/core/database/tables/playback_history_table.dart';
 import 'package:shelf_plus/core/database/tables/server_profiles_table.dart';
 
@@ -27,6 +31,34 @@ class LibraryItemWithProgress {
   final MediaProgressEntry? progress;
 }
 
+/// Joined row pairing a [DownloadTask] with its [LibraryItem] and optional
+/// [MediaProgressEntry].
+class DownloadedBookRow {
+  /// Creates a [DownloadedBookRow].
+  const new({required this.task, required this.item, this.progress});
+
+  /// Download queue task state.
+  final DownloadTask task;
+
+  /// Associated cached library item.
+  final LibraryItem item;
+
+  /// Associated progress entry, if any.
+  final MediaProgressEntry? progress;
+}
+
+/// Joined row pairing a conflicted [MediaProgressEntry] with its [LibraryItem].
+class ConflictedProgressRow {
+  /// Creates a [ConflictedProgressRow].
+  const new({required this.item, required this.progress});
+
+  /// Associated cached library item.
+  final LibraryItem item;
+
+  /// Conflicted progress entry (`syncState == 'conflict'`).
+  final MediaProgressEntry progress;
+}
+
 /// Local SQLite database powered by Drift with FTS5 full-text search.
 @DriftDatabase(
   tables: <Type>[
@@ -38,6 +70,10 @@ class LibraryItemWithProgress {
     Bookmarks,
     Collections,
     PlaybackHistoryEntries,
+    DownloadTasks,
+    DownloadedTracks,
+    PendingSyncMutations,
+    AppPreferences,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -46,10 +82,15 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'shelf_plus'));
 
   /// Creates an isolated in-memory database for unit and widget tests.
-  factory inMemory() => AppDatabase(NativeDatabase.memory());
+  factory inMemory() => AppDatabase(
+    DatabaseConnection(
+      NativeDatabase.memory(),
+      closeStreamsSynchronously: true,
+    ),
+  );
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -69,6 +110,12 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await m.createTable(playbackHistoryEntries);
+      }
+      if (from < 4) {
+        await m.createTable(downloadTasks);
+        await m.createTable(downloadedTracks);
+        await m.createTable(pendingSyncMutations);
+        await m.createTable(appPreferences);
       }
     },
   );
@@ -252,6 +299,24 @@ class AppDatabase extends _$AppDatabase {
           ))
           .go();
       await (delete(playbackHistoryEntries)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      await (delete(downloadTasks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      await (delete(downloadedTracks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      await (delete(pendingSyncMutations)..where(
             (tbl) =>
                 tbl.serverId.equals(serverId) &
                 tbl.libraryItemId.equals(itemId),
@@ -483,17 +548,37 @@ class AppDatabase extends _$AppDatabase {
         .watch();
   }
 
-  /// Replaces all synced bookmarks for [serverId].
+  /// Replaces synced bookmarks for [serverId], preserving local notes for
+  /// matching `(libraryItemId, timeSec)` entries.
   Future<void> replaceBookmarksForServer(
     String serverId,
     List<BookmarksCompanion> entries,
   ) {
     return transaction(() async {
+      final existing = await (select(
+        bookmarks,
+      )..where((tbl) => tbl.serverId.equals(serverId))).get();
+      final notesByKey = <(String, double), String?>{
+        for (final row in existing)
+          if (row.note != null && row.note!.isNotEmpty)
+            (row.libraryItemId, row.timeSec): row.note,
+      };
       await (delete(
         bookmarks,
       )..where((tbl) => tbl.serverId.equals(serverId))).go();
       if (entries.isNotEmpty) {
-        await batch((b) => b.insertAll(bookmarks, entries));
+        final merged = entries
+            .map((entry) {
+              final existingNote =
+                  notesByKey[(entry.libraryItemId.value, entry.timeSec.value)];
+              if (existingNote == null ||
+                  (entry.note.present && entry.note.value != null)) {
+                return entry;
+              }
+              return entry.copyWith(note: Value<String?>(existingNote));
+            })
+            .toList(growable: false);
+        await batch((b) => b.insertAll(bookmarks, merged));
       }
     });
   }
@@ -668,5 +753,329 @@ class AppDatabase extends _$AppDatabase {
         )..where((tbl) => tbl.id.isIn(ids))).go();
       }
     });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 4 AppPreferences
+  // ---------------------------------------------------------------------------
+
+  /// Reads a preference value by [key], or returns `null` if unset.
+  Future<String?> getPreference(String key) async {
+    final row = await (select(
+      appPreferences,
+    )..where((tbl) => tbl.key.equals(key))).getSingleOrNull();
+    return row?.value;
+  }
+
+  /// Stores or overwrites preference [key] with [value].
+  Future<void> setPreference(String key, String value) {
+    return into(appPreferences).insertOnConflictUpdate(
+      AppPreferencesCompanion.insert(key: key, value: value),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 4 DownloadTasks & DownloadedTracks
+  // ---------------------------------------------------------------------------
+
+  /// Watches download tasks joined with their library items and progress.
+  Stream<List<DownloadedBookRow>> watchDownloadedBooks(String serverId) {
+    final query =
+        select(downloadTasks).join(<Join<HasResultSet, dynamic>>[
+            innerJoin(
+              libraryItems,
+              libraryItems.serverId.equalsExp(downloadTasks.serverId) &
+                  libraryItems.id.equalsExp(downloadTasks.libraryItemId),
+            ),
+            leftOuterJoin(
+              mediaProgressEntries,
+              mediaProgressEntries.serverId.equalsExp(downloadTasks.serverId) &
+                  mediaProgressEntries.libraryItemId.equalsExp(
+                    downloadTasks.libraryItemId,
+                  ),
+            ),
+          ])
+          ..where(downloadTasks.serverId.equals(serverId))
+          ..orderBy(<OrderingTerm>[
+            OrderingTerm.desc(downloadTasks.updatedAtMs),
+          ]);
+
+    return query.watch().map(
+      (rows) => rows
+          .map(
+            (row) => DownloadedBookRow(
+              task: row.readTable(downloadTasks),
+              item: row.readTable(libraryItems),
+              progress: row.readTableOrNull(mediaProgressEntries),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  /// Watches all [DownloadTask] rows for [serverId].
+  Stream<List<DownloadTask>> watchDownloadTasks(String serverId) {
+    return (select(downloadTasks)
+          ..where((tbl) => tbl.serverId.equals(serverId))
+          ..orderBy(<OrderingTerm Function(DownloadTasks)>[
+            (tbl) => OrderingTerm.desc(tbl.updatedAtMs),
+          ]))
+        .watch();
+  }
+
+  /// Fetches all [DownloadTask] rows for [serverId].
+  Future<List<DownloadTask>> getDownloadTasks(String serverId) {
+    return (select(downloadTasks)
+          ..where((tbl) => tbl.serverId.equals(serverId))
+          ..orderBy(<OrderingTerm Function(DownloadTasks)>[
+            (tbl) => OrderingTerm.desc(tbl.updatedAtMs),
+          ]))
+        .get();
+  }
+
+  /// Watches a single [DownloadTask] for [serverId] and [itemId].
+  Stream<DownloadTask?> watchDownloadTask(String serverId, String itemId) {
+    return (select(downloadTasks)
+          ..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          )
+          ..limit(1))
+        .watchSingleOrNull();
+  }
+
+  /// Fetches a single [DownloadTask] for [serverId] and [itemId].
+  Future<DownloadTask?> getDownloadTask(String serverId, String itemId) {
+    return (select(downloadTasks)
+          ..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          )
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  /// Inserts or updates a [DownloadTask].
+  Future<void> upsertDownloadTask(DownloadTasksCompanion entry) {
+    return into(downloadTasks).insertOnConflictUpdate(entry);
+  }
+
+  /// Partially updates an existing [DownloadTask] for [serverId] and [itemId].
+  Future<void> updateDownloadTask(
+    String serverId,
+    String itemId,
+    DownloadTasksCompanion entry,
+  ) {
+    return (update(downloadTasks)..where(
+          (tbl) =>
+              tbl.serverId.equals(serverId) & tbl.libraryItemId.equals(itemId),
+        ))
+        .write(entry);
+  }
+
+  /// Deletes both the [DownloadTask] and all [DownloadedTracks] for [itemId].
+  Future<void> deleteDownloadForBook(String serverId, String itemId) {
+    return transaction(() async {
+      await (delete(downloadedTracks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      await (delete(downloadTasks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+    });
+  }
+
+  /// Returns ordered [DownloadedTrack] rows for [serverId] and [itemId].
+  Future<List<DownloadedTrack>> getDownloadedTracks(
+    String serverId,
+    String itemId,
+  ) {
+    return (select(downloadedTracks)
+          ..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          )
+          ..orderBy(<OrderingTerm Function(DownloadedTracks)>[
+            (tbl) => OrderingTerm.asc(tbl.trackIndex),
+          ]))
+        .get();
+  }
+
+  /// Replaces the [DownloadedTrack] entries for [serverId] and [itemId].
+  Future<void> replaceDownloadedTracks(
+    String serverId,
+    String itemId,
+    List<DownloadedTracksCompanion> tracks,
+  ) {
+    return transaction(() async {
+      await (delete(downloadedTracks)..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          ))
+          .go();
+      if (tracks.isNotEmpty) {
+        await batch((b) => b.insertAll(downloadedTracks, tracks));
+      }
+    });
+  }
+
+  /// Updates byte progress and completion status for a single track.
+  Future<void> updateDownloadedTrackProgress({
+    required String serverId,
+    required String libraryItemId,
+    required int trackIndex,
+    required int downloadedBytes,
+    int? expectedBytes,
+    bool? isComplete,
+  }) {
+    return (update(downloadedTracks)..where(
+          (tbl) =>
+              tbl.serverId.equals(serverId) &
+              tbl.libraryItemId.equals(libraryItemId) &
+              tbl.trackIndex.equals(trackIndex),
+        ))
+        .write(
+          DownloadedTracksCompanion(
+            downloadedBytes: Value<int>(downloadedBytes),
+            expectedBytes: expectedBytes == null
+                ? const Value<int>.absent()
+                : Value<int>(expectedBytes),
+            isComplete: isComplete == null
+                ? const Value<bool>.absent()
+                : Value<bool>(isComplete),
+          ),
+        );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 4 Offline Sync & Conflicts
+  // ---------------------------------------------------------------------------
+
+  /// Returns the cached [MediaProgressEntry] for [serverId] and [itemId].
+  Future<MediaProgressEntry?> getMediaProgress(String serverId, String itemId) {
+    return (select(mediaProgressEntries)
+          ..where(
+            (tbl) =>
+                tbl.serverId.equals(serverId) &
+                tbl.libraryItemId.equals(itemId),
+          )
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  /// Watches all progress conflicts (`syncState == 'conflict'`) for [serverId].
+  Stream<List<ConflictedProgressRow>> watchConflictedProgress(String serverId) {
+    final query =
+        select(mediaProgressEntries).join(<Join<HasResultSet, dynamic>>[
+            innerJoin(
+              libraryItems,
+              libraryItems.serverId.equalsExp(mediaProgressEntries.serverId) &
+                  libraryItems.id.equalsExp(mediaProgressEntries.libraryItemId),
+            ),
+          ])
+          ..where(
+            mediaProgressEntries.serverId.equals(serverId) &
+                mediaProgressEntries.syncState.equals('conflict'),
+          )
+          ..orderBy(<OrderingTerm>[
+            OrderingTerm.desc(mediaProgressEntries.localUpdatedAtMs),
+          ]);
+
+    return query.watch().map(
+      (rows) => rows
+          .map(
+            (row) => ConflictedProgressRow(
+              item: row.readTable(libraryItems),
+              progress: row.readTable(mediaProgressEntries),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  /// Enqueues an offline sync mutation, coalescing duplicate `'progress'`
+  /// mutations for the same item so only the latest listening position ships.
+  Future<void> enqueueSyncMutation({
+    required String serverId,
+    required String libraryItemId,
+    required String mutationType,
+    required String payloadJson,
+    required int createdAtMs,
+  }) {
+    return transaction(() async {
+      if (mutationType == 'progress') {
+        await (delete(pendingSyncMutations)..where(
+              (tbl) =>
+                  tbl.serverId.equals(serverId) &
+                  tbl.libraryItemId.equals(libraryItemId) &
+                  tbl.mutationType.equals('progress'),
+            ))
+            .go();
+      }
+      await into(pendingSyncMutations).insert(
+        PendingSyncMutationsCompanion.insert(
+          serverId: serverId,
+          libraryItemId: libraryItemId,
+          mutationType: mutationType,
+          payloadJson: payloadJson,
+          createdAtMs: createdAtMs,
+        ),
+      );
+    });
+  }
+
+  /// Returns all queued offline mutations for [serverId] in FIFO order.
+  Future<List<PendingSyncMutation>> getPendingSyncMutations(String serverId) {
+    return (select(pendingSyncMutations)
+          ..where((tbl) => tbl.serverId.equals(serverId))
+          ..orderBy(<OrderingTerm Function(PendingSyncMutations)>[
+            (tbl) => OrderingTerm.asc(tbl.id),
+          ]))
+        .get();
+  }
+
+  /// Watches the pending offline mutation count for [serverId].
+  Stream<int> watchPendingSyncCount(String serverId) {
+    final query = select(pendingSyncMutations)
+      ..where((tbl) => tbl.serverId.equals(serverId));
+    return query.watch().map((rows) => rows.length);
+  }
+
+  /// Removes a flushed mutation by [id].
+  Future<void> deleteSyncMutation(int id) {
+    return (delete(
+      pendingSyncMutations,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  /// Removes any queued `'progress'` mutations for [serverId] and [itemId].
+  Future<void> deleteProgressMutationsForItem(String serverId, String itemId) {
+    return (delete(pendingSyncMutations)..where(
+          (tbl) =>
+              tbl.serverId.equals(serverId) &
+              tbl.libraryItemId.equals(itemId) &
+              tbl.mutationType.equals('progress'),
+        ))
+        .go();
+  }
+
+  /// Increments retry count and records [error] for mutation [id].
+  Future<void> markSyncMutationFailed(int id, String error) {
+    return customStatement(
+      'UPDATE pending_sync_mutations '
+      'SET retry_count = retry_count + 1, last_error = ? '
+      'WHERE id = ?',
+      <Object>[error, id],
+    );
   }
 }

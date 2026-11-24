@@ -142,7 +142,12 @@ class _StreamBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final isHls = playMethod == AbsPlayMethod.transcode;
+    final label = switch (playMethod) {
+      AbsPlayMethod.local => l10n.playerStreamLocal,
+      AbsPlayMethod.transcode => l10n.playerStreamHls,
+      AbsPlayMethod.directPlay ||
+      AbsPlayMethod.directStream => l10n.playerStreamDirect,
+    };
     return Container(
       key: const Key('player_stream_badge'),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -151,7 +156,7 @@ class _StreamBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        isHls ? l10n.playerStreamHls : l10n.playerStreamDirect,
+        label,
         style: theme.textTheme.labelSmall?.copyWith(
           color: theme.colorScheme.onSecondaryContainer,
           fontWeight: FontWeight.w600,

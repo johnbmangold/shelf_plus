@@ -88,10 +88,12 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.tap(find.byKey(const Key('book_detail_download_button')));
+        await tester.pump();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
         await tester.pumpAndSettle();
-        check(
-          find.text('Offline downloads launch in Phase 4.').evaluate().length,
-        ).equals(1);
+        check(find.text('Downloaded').evaluate().length).equals(1);
       },
     );
 

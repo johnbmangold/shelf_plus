@@ -101,6 +101,7 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
                 dependencies.credentialsStore.loadActiveRequestHeaders,
             logger: dependencies.logger,
             playerController: dependencies.playerController,
+            downloadController: dependencies.downloadController,
             onOpenPlayer: () => context.push(AppRoutes.player),
             enableNetworkImages: dependencies.enableNetworkImages,
             autoFetchDetail: dependencies.autoSyncOnStart,
@@ -161,7 +162,17 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
             routes: <RouteBase>[
               GoRoute(
                 path: AppRoutes.downloads,
-                builder: (context, state) => const DownloadsScreen(),
+                builder: (context, state) => DownloadsScreen(
+                  downloadController: dependencies.downloadController,
+                  syncController: dependencies.offlineSyncController,
+                  playerController: dependencies.playerController,
+                  libraryRepository: dependencies.libraryRepository,
+                  authController: authController,
+                  loadImageHeaders:
+                      dependencies.credentialsStore.loadActiveRequestHeaders,
+                  onOpenPlayer: () => context.push(AppRoutes.player),
+                  enableNetworkImages: dependencies.enableNetworkImages,
+                ),
               ),
             ],
           ),

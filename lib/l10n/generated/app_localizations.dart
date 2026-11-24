@@ -1029,6 +1029,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bookmark'**
   String get playerHistoryReasonBookmark;
+
+  /// Stream badge when playing offline downloaded files.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get playerStreamLocal;
+
+  /// Total offline audio storage used on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} used on device'**
+  String downloadsStorageUsed(String size);
+
+  /// Switch label restricting downloads to Wi-Fi networks.
+  ///
+  /// In en, this message translates to:
+  /// **'Download on Wi-Fi only'**
+  String get downloadsWifiOnlyTitle;
+
+  /// Switch subtitle for Wi-Fi only downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause transfers automatically on cellular networks'**
+  String get downloadsWifiOnlySubtitle;
+
+  /// Switch label to remove offline files when finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-delete finished books'**
+  String get downloadsAutoDeleteTitle;
+
+  /// Switch subtitle for auto-deleting finished downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove downloaded files once an audiobook is finished'**
+  String get downloadsAutoDeleteSubtitle;
+
+  /// Button to remove all downloaded offline audiobooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get downloadsClearAll;
+
+  /// Download task status badge when queued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued'**
+  String get downloadsStatusQueued;
+
+  /// Download task status badge when actively transferring.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading'**
+  String get downloadsStatusDownloading;
+
+  /// Download task status badge when paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get downloadsStatusPaused;
+
+  /// Download task status badge when finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get downloadsStatusCompleted;
+
+  /// Download task status badge when an error occurred.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get downloadsStatusFailed;
+
+  /// Subtitle when a download is paused awaiting Wi-Fi.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Wi-Fi'**
+  String get downloadsWaitingForWifi;
+
+  /// Action button to pause an active download.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get downloadsPause;
+
+  /// Action button to resume a paused download.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get downloadsResume;
+
+  /// Action button to retry a failed download.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get downloadsRetry;
+
+  /// Action button to delete offline files.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get downloadsDelete;
+
+  /// Confirmation dialog title when deleting offline book files.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove offline files?'**
+  String get downloadsDeleteTitle;
+
+  /// Confirmation dialog body when deleting offline book files.
+  ///
+  /// In en, this message translates to:
+  /// **'This deletes downloaded audio from this device without affecting your Audiobookshelf server.'**
+  String get downloadsDeleteBody;
+
+  /// Cancel button in offline download confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get downloadsCancel;
+
+  /// Chip displaying queued offline sync mutations.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pending sync'**
+  String syncPendingBadge(int count);
+
+  /// Button to flush queued offline sync mutations immediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// Warning banner title when local and server progress diverge.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress conflict detected'**
+  String get syncConflictBannerTitle;
+
+  /// Warning banner subtitle for diverged progress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} audiobook(s) have newer progress on both this device and the server.'**
+  String syncConflictBannerSubtitle(int count);
+
+  /// Button to open the sync conflict resolution sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get syncConflictResolve;
+
+  /// Title for the sync conflict resolution bottom sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose listening position'**
+  String get syncConflictSheetTitle;
+
+  /// Label for local listening timestamp in conflict sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get syncConflictDeviceLabel;
+
+  /// Label for server listening timestamp in conflict sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get syncConflictServerLabel;
+
+  /// Button choosing local progress over server progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep device position'**
+  String get syncConflictKeepDevice;
+
+  /// Button choosing server progress over local progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Use server position'**
+  String get syncConflictUseServer;
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,7 @@ import 'package:shelf_plus/core/socket/abs_socket_events.dart';
 import 'package:shelf_plus/features/auth/domain/server_session.dart';
 import 'package:shelf_plus/features/library/domain/library_models.dart';
 import 'package:shelf_plus/features/library/domain/library_repository.dart';
+import 'package:shelf_plus/features/sync/domain/progress_conflict_resolver.dart';
 
 /// Drift-backed offline-first implementation of [LibraryRepository].
 class LibraryRepositoryImpl implements LibraryRepository {
@@ -241,11 +242,18 @@ class LibraryRepositoryImpl implements LibraryRepository {
     }
 
     final me = await _apiClient.fetchMe(baseUrl: baseUrl);
-    await _database.upsertMediaProgressEntries(
-      me.mediaProgress
-          .map((p) => _progressCompanionFromDto(serverId, p))
-          .toList(growable: false),
-    );
+    final mergedProgress = <MediaProgressEntriesCompanion>[];
+    for (final p in me.mediaProgress) {
+      final local = await _database.getMediaProgress(serverId, p.libraryItemId);
+      mergedProgress.add(
+        ProgressConflictResolver.mergeToCompanion(
+          serverId: serverId,
+          remote: p,
+          local: local,
+        ),
+      );
+    }
+    await _database.upsertMediaProgressEntries(mergedProgress);
     await _database.replaceBookmarksForServer(
       serverId,
       me.bookmarks
@@ -357,9 +365,17 @@ class LibraryRepositoryImpl implements LibraryRepository {
       case LibraryItemRemovedEvent(:final itemId):
         await _database.deleteLibraryItem(serverId, itemId);
       case UserProgressUpdatedEvent(:final progress):
+        final local = await _database.getMediaProgress(
+          serverId,
+          progress.libraryItemId,
+        );
         await _database.upsertMediaProgressEntries(
           <MediaProgressEntriesCompanion>[
-            _progressCompanionFromDto(serverId, progress),
+            ProgressConflictResolver.mergeToCompanion(
+              serverId: serverId,
+              remote: progress,
+              local: local,
+            ),
           ],
         );
     }
@@ -414,26 +430,6 @@ class LibraryRepositoryImpl implements LibraryRepository {
       hasCover: Value(dto.hasCover),
       addedAtMs: Value(dto.addedAtMs),
       updatedAtMs: Value(dto.updatedAtMs),
-    );
-  }
-
-  MediaProgressEntriesCompanion _progressCompanionFromDto(
-    String serverId,
-    AbsMediaProgressDto dto,
-  ) {
-    return MediaProgressEntriesCompanion.insert(
-      serverId: serverId,
-      libraryItemId: dto.libraryItemId,
-      durationSec: Value(dto.durationSec),
-      localPositionSec: Value(dto.currentTimeSec),
-      serverPositionSec: Value(dto.currentTimeSec),
-      lastSyncedPositionSec: Value(dto.currentTimeSec),
-      progress: Value(dto.progress),
-      isFinished: Value(dto.isFinished),
-      hideFromContinueListening: Value(dto.hideFromContinueListening),
-      localUpdatedAtMs: Value(dto.lastUpdateMs),
-      serverUpdatedAtMs: Value(dto.lastUpdateMs),
-      syncState: const Value('synced'),
     );
   }
 

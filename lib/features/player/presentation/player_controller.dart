@@ -12,12 +12,14 @@ import 'package:shelf_plus/core/socket/abs_socket_service.dart';
 import 'package:shelf_plus/core/theme/dynamic_cover_theme_service.dart';
 import 'package:shelf_plus/features/auth/data/auth_repository_impl.dart';
 import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
+import 'package:shelf_plus/features/downloads/presentation/download_controller.dart';
 import 'package:shelf_plus/features/library/domain/library_models.dart';
 import 'package:shelf_plus/features/player/domain/audio_player_engine.dart';
 import 'package:shelf_plus/features/player/domain/book_timeline_mapper.dart';
 import 'package:shelf_plus/features/player/domain/shake_detector.dart';
 import 'package:shelf_plus/features/player/domain/sleep_timer_controller.dart';
 import 'package:shelf_plus/features/player/domain/smart_rewind_policy.dart';
+import 'package:shelf_plus/features/sync/presentation/offline_sync_controller.dart';
 import 'package:uuid/uuid.dart';
 
 /// Application-wide audio playback controller coordinating the audio engine,
@@ -34,6 +36,8 @@ class PlayerController extends ChangeNotifier {
     required this._socketService,
     required this._coverThemeExtractor,
     required this._logger,
+    this._downloadController,
+    this._offlineSyncController,
     ShakeDetector? shakeDetector,
     this._smartRewindPolicy = const SmartRewindPolicy(),
     DateTime Function()? now,
@@ -78,6 +82,8 @@ class PlayerController extends ChangeNotifier {
   final AbsSocketService _socketService;
   final CoverThemeExtractor _coverThemeExtractor;
   final AppLogger _logger;
+  final DownloadController? _downloadController;
+  final OfflineSyncController? _offlineSyncController;
   final ShakeDetector _shakeDetector;
   final SmartRewindPolicy _smartRewindPolicy;
   final DateTime Function() _now;
@@ -274,6 +280,91 @@ class PlayerController extends ChangeNotifier {
           : null;
       if (coverUrl != null) {
         unawaited(_extractDynamicSchemes(coverUrl, headers));
+      }
+
+      final localTracks = await _downloadController?.resolveLocalTracks(
+        session.serverId,
+        book.id,
+      );
+      if (localTracks != null && localTracks.isNotEmpty) {
+        final totalLocalDur = localTracks.fold<double>(
+          0,
+          (sum, t) => sum + t.durationSec,
+        );
+        final initialResumeSec =
+            startPositionSec ?? book.progress?.positionSec ?? 0;
+        final playbackSession = AbsPlaybackSessionDto(
+          sessionId: 'local-${book.id}',
+          libraryItemId: book.id,
+          playMethod: AbsPlayMethod.local,
+          startTimeSec: initialResumeSec,
+          currentTimeSec: initialResumeSec,
+          durationSec: totalLocalDur > 0 ? totalLocalDur : book.durationSec,
+          audioTracks: <AbsAudioTrackDto>[
+            for (final t in localTracks)
+              AbsAudioTrackDto(
+                index: t.trackIndex,
+                startOffsetSec: t.startOffsetSec,
+                durationSec: t.durationSec,
+                contentUrl: Uri.file(t.localPath).toString(),
+                title: t.title,
+              ),
+          ],
+        );
+        final segments = localTracks
+            .map(
+              (t) => TrackSegment(
+                index: t.trackIndex,
+                startOffsetSec: t.startOffsetSec,
+                durationSec: t.durationSec,
+              ),
+            )
+            .toList(growable: false);
+        final mapper = BookTimelineMapper(segments);
+        final target = mapper.toTrackPosition(initialResumeSec);
+        final engineTracks = localTracks
+            .map(
+              (t) => AudioEngineTrack(
+                id: 'local_${book.id}_${t.trackIndex}',
+                uri: Uri.file(t.localPath),
+                startOffsetSec: t.startOffsetSec,
+                durationSec: t.durationSec,
+                title: t.title,
+              ),
+            )
+            .toList(growable: false);
+
+        await _engine.loadBook(
+          metadata: AudioBookMetadata(
+            itemId: book.id,
+            title: book.title,
+            author: book.authorsDisplay,
+            durationSec: playbackSession.durationSec,
+            coverUri: coverUrl != null ? Uri.parse(coverUrl) : null,
+            coverHeaders: headers,
+          ),
+          tracks: engineTracks,
+          initialTrackIndex: target.trackIndex,
+          initialTrackPosition: target.trackPosition,
+        );
+        _mapper = mapper;
+        _activeSession = playbackSession;
+        _lastKnownPositionSec = initialResumeSec;
+        _lastSyncAt = _now();
+        await _engine.play();
+        _startSyncTimer();
+        await _recordHistory(
+          serverId: session.serverId,
+          itemId: book.id,
+          positionSec: _lastKnownPositionSec,
+          reason: 'play',
+        );
+        await _persistLocalProgress(
+          serverId: session.serverId,
+          itemId: book.id,
+          positionSec: _lastKnownPositionSec,
+        );
+        return;
       }
 
       var playbackSession = await _apiClient.startPlaybackSession(
@@ -648,10 +739,15 @@ class PlayerController extends ChangeNotifier {
       );
     } on Object catch (err, stackTrace) {
       _logger.warning(
-        'Saved bookmark locally; server sync deferred',
+        'Saved bookmark locally; queuing offline sync',
         scope: 'player',
         error: err,
         stackTrace: stackTrace,
+      );
+      await _offlineSyncController?.enqueueBookmarkCreate(
+        itemId: book.id,
+        timeSec: timeSec,
+        title: trimmedTitle,
       );
     }
   }
@@ -676,10 +772,14 @@ class PlayerController extends ChangeNotifier {
       );
     } on Object catch (err, stackTrace) {
       _logger.warning(
-        'Deleted bookmark locally; server call failed',
+        'Deleted bookmark locally; queuing offline sync',
         scope: 'player',
         error: err,
         stackTrace: stackTrace,
+      );
+      await _offlineSyncController?.enqueueBookmarkDelete(
+        itemId: book.id,
+        timeSec: timeSec,
       );
     }
   }
@@ -706,6 +806,19 @@ class PlayerController extends ChangeNotifier {
         ? (now.difference(last).inMilliseconds / 1000.0)
         : 0.0;
     final pos = positionSec;
+    final dur = durationSec;
+    final finished = dur > 0 && pos >= dur - 1;
+
+    if (playbackSession.playMethod == AbsPlayMethod.local) {
+      await _offlineSyncController?.enqueueProgressSync(
+        itemId: book.id,
+        currentTimeSec: pos,
+        durationSec: dur,
+        isFinished: finished,
+      );
+      await _offlineSyncController?.flushPendingMutations();
+      return;
+    }
 
     try {
       await _apiClient.syncPlaybackSession(
@@ -713,7 +826,7 @@ class PlayerController extends ChangeNotifier {
         sessionId: playbackSession.sessionId,
         currentTimeSec: pos,
         timeListenedSec: elapsedSec < 0 ? 0 : elapsedSec,
-        durationSec: durationSec,
+        durationSec: dur,
       );
       await _persistLocalProgress(
         serverId: session.serverId,
@@ -723,10 +836,16 @@ class PlayerController extends ChangeNotifier {
       );
     } on Object catch (err, stackTrace) {
       _logger.warning(
-        'Session sync failed; retaining local progress',
+        'Session sync failed; queuing offline progress',
         scope: 'player',
         error: err,
         stackTrace: stackTrace,
+      );
+      await _offlineSyncController?.enqueueProgressSync(
+        itemId: book.id,
+        currentTimeSec: pos,
+        durationSec: dur,
+        isFinished: finished,
       );
     }
   }
@@ -822,8 +941,8 @@ class PlayerController extends ChangeNotifier {
     required String itemId,
     required double positionSec,
     bool markSynced = false,
-  }) {
-    return _database.updateLocalProgress(
+  }) async {
+    await _database.updateLocalProgress(
       serverId: serverId,
       libraryItemId: itemId,
       positionSec: positionSec,
@@ -831,6 +950,9 @@ class PlayerController extends ChangeNotifier {
       updatedAtMs: _now().millisecondsSinceEpoch,
       markSynced: markSynced,
     );
+    if (durationSec > 0 && positionSec >= durationSec - 1) {
+      await _downloadController?.handleBookFinished(itemId);
+    }
   }
 
   Future<void> _recordHistory({
@@ -852,6 +974,7 @@ class PlayerController extends ChangeNotifier {
     final active = _activeSession;
     _activeSession = null;
     if (active == null) return;
+    if (active.playMethod == AbsPlayMethod.local) return;
     _socketService.unregisterSelfSessionId(active.sessionId);
     final baseUrl = _authController.session?.baseUrl;
     if (baseUrl == null) return;

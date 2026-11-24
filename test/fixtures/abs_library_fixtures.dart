@@ -140,6 +140,30 @@ abstract final class AbsLibraryFixtures {
           'title': 'Chapter 2: Tau Ceti',
         },
       ],
+      'audioFiles': <Map<String, Object?>>[
+        <String, Object?>{
+          'index': 0,
+          'ino': 'ino-1',
+          'duration': 1800.0,
+          'mimeType': 'audio/mp4',
+          'metadata': <String, Object?>{
+            'filename': 'hail_mary_01.m4b',
+            'size': 2048,
+          },
+          'metaTags': <String, Object?>{'tagTitle': 'Part 1'},
+        },
+        <String, Object?>{
+          'index': 1,
+          'ino': 'ino-2',
+          'duration': 56400.0,
+          'mimeType': 'audio/mp4',
+          'metadata': <String, Object?>{
+            'filename': 'hail_mary_02.m4b',
+            'size': 2048,
+          },
+          'metaTags': <String, Object?>{'tagTitle': 'Part 2'},
+        },
+      ],
     },
   };
 
