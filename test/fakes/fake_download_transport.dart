@@ -37,8 +37,8 @@ class FakeDownloadTransport implements DownloadTransport {
       await onBeforeFinish!(cancelToken);
     }
     if (cancelToken.isCancelled) {
-      final partFile = File('$destinationPath.part');
-      partFile.writeAsBytesSync(List<int>.filled(trackSizeBytes ~/ 2, 7));
+      final _ = File('$destinationPath.part')
+        ..writeAsBytesSync(List<int>.filled(trackSizeBytes ~/ 2, 7));
       throw DioException.requestCancelled(
         requestOptions: RequestOptions(path: url),
         reason: cancelToken.cancelError?.error,
