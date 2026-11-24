@@ -7,15 +7,21 @@ import 'package:shelf_plus/app/flavor_config.dart';
 import 'package:shelf_plus/core/database/app_database.dart';
 import 'package:shelf_plus/core/logging/app_logger.dart';
 import 'package:shelf_plus/core/network/abs_api_client.dart';
+import 'package:shelf_plus/core/socket/abs_socket_service.dart';
 import 'package:shelf_plus/core/theme/app_theme.dart';
+import 'package:shelf_plus/core/theme/dynamic_cover_theme_service.dart';
 import 'package:shelf_plus/core/theme/theme_controller.dart';
 import 'package:shelf_plus/features/auth/data/auth_repository_impl.dart';
 import 'package:shelf_plus/features/auth/domain/auth_repository.dart';
 import 'package:shelf_plus/features/auth/domain/server_session.dart';
 import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
 import 'package:shelf_plus/features/diagnostics/domain/log_exporter.dart';
+import 'package:shelf_plus/features/library/domain/library_repository.dart';
 import 'package:shelf_plus/l10n/generated/app_localizations.dart';
 
+import '../fakes/fake_abs_socket_service.dart';
+import '../fakes/fake_cover_theme_extractor.dart';
+import '../fakes/fake_library_repository.dart';
 import '../fakes/fake_log_exporter.dart';
 import '../fakes/in_memory_secure_storage_service.dart';
 
@@ -32,10 +38,7 @@ const ServerSession testAuthenticatedSession = ServerSession(
 );
 
 /// Builds test-safe [AppDependencies] backed by an in-memory Drift database
-/// and in-memory secure storage, with Google Fonts network loading disabled.
-///
-/// Pass [authenticated] as `false` to start in [AuthStatus.unauthenticated]
-/// (redirecting to `/login`).
+/// and in-memory fakes, with Google Fonts and network images disabled.
 AppDependencies createTestDependencies({
   FlavorConfig flavorConfig = const FlavorConfig.dev(),
   ThemeController? themeController,
@@ -43,9 +46,13 @@ AppDependencies createTestDependencies({
   AppDatabase? database,
   InMemorySecureStorageService? secureStorage,
   AuthRepository? authRepository,
+  LibraryRepository? libraryRepository,
+  AbsSocketService? socketService,
+  CoverThemeExtractor? coverThemeExtractor,
   LogExporter? logExporter,
   bool authenticated = true,
   ServerSession? initialSession,
+  bool autoSyncOnStart = false,
 }) {
   final resolvedLogger =
       logger ?? AppLogger(level: Level.FINE, forwardToDeveloperLog: false);
@@ -94,11 +101,17 @@ AppDependencies createTestDependencies({
     themeController: themeController ?? ThemeController(),
     database: resolvedDb,
     secureStorage: resolvedStorage,
+    credentialsStore: credentialsStore,
     apiClient: apiClient,
     authRepository: resolvedAuthRepo,
     authController: authController,
+    libraryRepository: libraryRepository ?? FakeLibraryRepository(),
+    socketService: socketService ?? FakeAbsSocketService(),
+    coverThemeExtractor: coverThemeExtractor ?? FakeCoverThemeExtractor(),
     logExporter: logExporter ?? FakeLogExporter(),
     useGoogleFonts: false,
+    enableNetworkImages: false,
+    autoSyncOnStart: autoSyncOnStart,
   );
 }
 

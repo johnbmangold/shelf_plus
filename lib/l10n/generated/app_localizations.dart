@@ -130,11 +130,53 @@ abstract class AppLocalizations {
   /// **'Your listening shelf'**
   String get homeEmptyTitle;
 
-  /// Placeholder subtitle on Home screen.
+  /// Empty state subtitle on Home screen.
   ///
   /// In en, this message translates to:
-  /// **'Connect an Audiobookshelf server in Phase 1 to see Continue Listening and recently added books.'**
+  /// **'Pull down to sync your Audiobookshelf library and start listening.'**
   String get homeEmptySubtitle;
+
+  /// Hero section header on Home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue listening'**
+  String get homeContinueListening;
+
+  /// In progress shelf title on Home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get homeInProgress;
+
+  /// Recently added shelf title on Home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently added'**
+  String get homeRecentlyAdded;
+
+  /// Non-blocking banner shown when sync fails and cached books exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing cached library'**
+  String get homeOfflineBanner;
+
+  /// Tooltip for manual refresh button on Home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync library'**
+  String get homeSyncTooltip;
+
+  /// Remaining listening time label.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String bookTimeLeft(String time);
+
+  /// Label shown when a book is completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get bookFinished;
 
   /// Placeholder title on Library screen.
   ///
@@ -142,11 +184,233 @@ abstract class AppLocalizations {
   /// **'Library browser'**
   String get libraryEmptyTitle;
 
-  /// Placeholder subtitle on Library screen.
+  /// Empty state subtitle on Library screen.
   ///
   /// In en, this message translates to:
-  /// **'Browse books, series, authors, and collections with instant offline search.'**
+  /// **'Sync your Audiobookshelf server to browse books, series, authors, and collections.'**
   String get libraryEmptySubtitle;
+
+  /// Search input placeholder on Library screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Search titles, authors, narrators, series…'**
+  String get librarySearchHint;
+
+  /// Browse mode label for Books.
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get libraryTabBooks;
+
+  /// Browse mode label for Series.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get libraryTabSeries;
+
+  /// Browse mode label for Authors.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get libraryTabAuthors;
+
+  /// Browse mode label for Collections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get libraryTabCollections;
+
+  /// Title for Sort and Filter bottom sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort & Filter'**
+  String get librarySortAndFilter;
+
+  /// Sort section label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get librarySortLabel;
+
+  /// Filter section label.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get libraryFilterLabel;
+
+  /// Sort books alphabetically by title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title A–Z'**
+  String get librarySortTitleAsc;
+
+  /// Sort books alphabetically by author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author A–Z'**
+  String get librarySortAuthorAsc;
+
+  /// Sort books by newest added date.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently added'**
+  String get librarySortAddedDesc;
+
+  /// Sort books by longest duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest first'**
+  String get librarySortDurationDesc;
+
+  /// Show all books.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get libraryFilterAll;
+
+  /// Show only in-progress books.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get libraryFilterInProgress;
+
+  /// Show only finished books.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get libraryFilterFinished;
+
+  /// Show only unstarted books.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get libraryFilterNotStarted;
+
+  /// Book count subtitle for series, authors, or collections.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 book} other{{count} books}}'**
+  String libraryBookCount(int count);
+
+  /// Empty state when search or filter yields no books.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching books'**
+  String get libraryNoMatches;
+
+  /// Empty state when a library has no series, authors, or collections.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get libraryNoGroups;
+
+  /// Tooltip for clear search button.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get libraryClearSearchTooltip;
+
+  /// Overview tab label on Book Detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get bookDetailOverviewTab;
+
+  /// Chapters tab label on Book Detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get bookDetailChaptersTab;
+
+  /// Bookmarks tab label on Book Detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookDetailBookmarksTab;
+
+  /// Narrator attribution line.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrated by {narrators}'**
+  String bookDetailNarratedBy(String narrators);
+
+  /// Play action button for unstarted book.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get bookDetailPlay;
+
+  /// Resume action button for in-progress book.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get bookDetailResume;
+
+  /// Download action button on Book Detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get bookDetailDownload;
+
+  /// Placeholder notice when tapping Play before Phase 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio playback launches in Phase 3.'**
+  String get bookDetailPlaybackPhase3;
+
+  /// Placeholder notice when tapping Download before Phase 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline downloads launch in Phase 4.'**
+  String get bookDetailDownloadPhase4;
+
+  /// Empty state for Chapters tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters available'**
+  String get bookDetailNoChapters;
+
+  /// Empty state for Bookmarks tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet'**
+  String get bookDetailNoBookmarks;
+
+  /// Fallback when book synopsis is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No synopsis available for this audiobook.'**
+  String get bookDetailNoDescription;
+
+  /// Metadata row label for publisher.
+  ///
+  /// In en, this message translates to:
+  /// **'Publisher'**
+  String get bookDetailPublisherLabel;
+
+  /// Metadata row label for publication year.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get bookDetailPublishedLabel;
+
+  /// Metadata row label for genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get bookDetailGenresLabel;
+
+  /// Metadata row label for series.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get bookDetailSeriesLabel;
+
+  /// Error state when a book detail cannot be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Book not found in local cache.'**
+  String get bookDetailNotFound;
 
   /// Placeholder title on Downloads screen.
   ///

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shelf_plus/app/app_dependencies.dart';
 import 'package:shelf_plus/app/router.dart';
+import 'package:shelf_plus/core/socket/abs_socket_events.dart';
 import 'package:shelf_plus/core/theme/app_theme.dart';
 import 'package:shelf_plus/l10n/generated/app_localizations.dart';
 
@@ -17,13 +20,71 @@ class ShelfPlusApp extends StatefulWidget {
   State<ShelfPlusApp> createState() => _ShelfPlusAppState();
 }
 
-class _ShelfPlusAppState extends State<ShelfPlusApp> {
+class _ShelfPlusAppState extends State<ShelfPlusApp>
+    with WidgetsBindingObserver {
   late final GoRouter _router = createAppRouter(
     dependencies: widget.dependencies,
   );
+  StreamSubscription<AbsSocketEvent>? _socketSub;
+  bool _isForeground = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    widget.dependencies.authController.addListener(_syncSocketLifecycle);
+    _socketSub = widget.dependencies.socketService.events.listen((event) {
+      final serverId = widget.dependencies.authController.session?.serverId;
+      if (serverId == null) return;
+      unawaited(
+        widget.dependencies.libraryRepository.handleSocketEvent(
+          serverId,
+          event,
+        ),
+      );
+    });
+    _syncSocketLifecycle();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _isForeground = state == AppLifecycleState.resumed;
+    _syncSocketLifecycle();
+  }
+
+  void _syncSocketLifecycle() {
+    final session = widget.dependencies.authController.session;
+    final socket = widget.dependencies.socketService;
+    if (!_isForeground || session == null) {
+      unawaited(socket.disconnect());
+      return;
+    }
+    unawaited(_connectSocket(session.baseUrl, session.customHeaders));
+  }
+
+  Future<void> _connectSocket(
+    String baseUrl,
+    Map<String, String> customHeaders,
+  ) async {
+    final tokens = await widget.dependencies.credentialsStore
+        .loadActiveTokens();
+    if (!_isForeground ||
+        widget.dependencies.authController.session == null ||
+        tokens == null) {
+      return;
+    }
+    await widget.dependencies.socketService.connect(
+      baseUrl: baseUrl,
+      accessToken: tokens.accessToken,
+      customHeaders: customHeaders,
+    );
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    widget.dependencies.authController.removeListener(_syncSocketLifecycle);
+    unawaited(_socketSub?.cancel());
     _router.dispose();
     super.dispose();
   }

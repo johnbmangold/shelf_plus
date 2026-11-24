@@ -108,6 +108,20 @@ class AuthCredentialsStore {
     );
   }
 
+  /// Loads combined `Authorization` + custom headers for authenticated media
+  /// requests (such as cover art fetches).
+  Future<Map<String, String>> loadActiveRequestHeaders() async {
+    final active = await _database.getActiveServer();
+    if (active == null) return const <String, String>{};
+    final customHeaders = await loadCustomHeadersForServer(active.id);
+    final tokens = await loadTokensForServer(active.id);
+    return <String, String>{
+      ...customHeaders,
+      if (tokens != null && tokens.accessToken.isNotEmpty)
+        'Authorization': 'Bearer ${tokens.accessToken}',
+    };
+  }
+
   /// Deletes tokens and custom headers for [serverId].
   Future<void> clearSecretsForServer(String serverId) async {
     await _secureStorage.delete(_accessTokenKey(serverId));

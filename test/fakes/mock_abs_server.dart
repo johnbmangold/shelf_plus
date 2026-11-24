@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 
+import '../fixtures/abs_library_fixtures.dart';
+
 /// Embedded Audiobookshelf mock HTTP server for unit, widget, and E2E tests.
 class MockAbsServer {
   new _({
@@ -246,6 +248,71 @@ class MockAbsServer {
     if (request.method == 'POST' && normalizedEndpoint == '/logout') {
       logoutCount++;
       return _jsonResponse(200, <String, Object?>{'success': true});
+    }
+
+    if (request.method == 'GET' && normalizedEndpoint == '/api/libraries') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, AbsLibraryFixtures.librariesResponseJson());
+    }
+
+    if (request.method == 'GET' &&
+        normalizedEndpoint == '/api/libraries/lib-main/items') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, AbsLibraryFixtures.libraryItemsPageJson());
+    }
+
+    if (request.method == 'GET' &&
+        normalizedEndpoint == '/api/libraries/lib-scifi/items') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, <String, Object?>{
+        'results': <Object>[],
+        'total': 0,
+        'limit': 100,
+        'page': 0,
+      });
+    }
+
+    if (request.method == 'GET' &&
+        normalizedEndpoint == '/api/libraries/lib-main/collections') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, AbsLibraryFixtures.collectionsResponseJson());
+    }
+
+    if (request.method == 'GET' &&
+        normalizedEndpoint == '/api/libraries/lib-scifi/collections') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, <String, Object?>{'results': <Object>[]});
+    }
+
+    if (request.method == 'GET' && normalizedEndpoint == '/api/items/item-1') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, AbsLibraryFixtures.expandedItem1Json());
+    }
+
+    if (request.method == 'GET' && normalizedEndpoint == '/api/me') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      return _jsonResponse(200, AbsLibraryFixtures.meResponseJson());
     }
 
     return _jsonResponse(404, <String, Object?>{'error': 'Not found'});

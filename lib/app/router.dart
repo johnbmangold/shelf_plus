@@ -3,6 +3,7 @@ import 'package:shelf_plus/app/app_dependencies.dart';
 import 'package:shelf_plus/core/widgets/app_shell_scaffold.dart';
 import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
 import 'package:shelf_plus/features/auth/presentation/login_screen.dart';
+import 'package:shelf_plus/features/book_detail/presentation/book_detail_screen.dart';
 import 'package:shelf_plus/features/diagnostics/presentation/diagnostics_screen.dart';
 import 'package:shelf_plus/features/downloads/presentation/downloads_screen.dart';
 import 'package:shelf_plus/features/home/presentation/home_screen.dart';
@@ -31,6 +32,13 @@ abstract final class AppRoutes {
 
   /// Diagnostics route nested inside Settings when signed in.
   static const String settingsDiagnostics = '/settings/diagnostics';
+
+  /// Book detail route pattern.
+  static const String bookDetail = '/book/:itemId';
+
+  /// Builds a concrete route path for opening [itemId] in [BookDetailScreen].
+  static String bookDetailPath(String itemId) =>
+      '/book/${Uri.encodeComponent(itemId)}';
 }
 
 /// Builds the application's [GoRouter] with auth redirects and a 4-branch
@@ -74,6 +82,25 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
           logExporter: dependencies.logExporter,
         ),
       ),
+      GoRoute(
+        path: AppRoutes.bookDetail,
+        builder: (context, state) {
+          final rawId = state.pathParameters['itemId'] ?? '';
+          final itemId = Uri.decodeComponent(rawId);
+          return BookDetailScreen(
+            itemId: itemId,
+            libraryRepository: dependencies.libraryRepository,
+            authController: authController,
+            coverThemeExtractor: dependencies.coverThemeExtractor,
+            themeController: dependencies.themeController,
+            loadImageHeaders:
+                dependencies.credentialsStore.loadActiveRequestHeaders,
+            logger: dependencies.logger,
+            enableNetworkImages: dependencies.enableNetworkImages,
+            autoFetchDetail: dependencies.autoSyncOnStart,
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppShellScaffold(navigationShell: navigationShell);
@@ -83,7 +110,16 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
             routes: <RouteBase>[
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => const HomeScreen(),
+                builder: (context, state) => HomeScreen(
+                  libraryRepository: dependencies.libraryRepository,
+                  authController: authController,
+                  loadImageHeaders:
+                      dependencies.credentialsStore.loadActiveRequestHeaders,
+                  logger: dependencies.logger,
+                  bookDetailRouteBuilder: AppRoutes.bookDetailPath,
+                  enableNetworkImages: dependencies.enableNetworkImages,
+                  autoSync: dependencies.autoSyncOnStart,
+                ),
               ),
             ],
           ),
@@ -91,7 +127,14 @@ GoRouter createAppRouter({required AppDependencies dependencies}) {
             routes: <RouteBase>[
               GoRoute(
                 path: AppRoutes.library,
-                builder: (context, state) => const LibraryScreen(),
+                builder: (context, state) => LibraryScreen(
+                  libraryRepository: dependencies.libraryRepository,
+                  authController: authController,
+                  loadImageHeaders:
+                      dependencies.credentialsStore.loadActiveRequestHeaders,
+                  bookDetailRouteBuilder: AppRoutes.bookDetailPath,
+                  enableNetworkImages: dependencies.enableNetworkImages,
+                ),
               ),
             ],
           ),

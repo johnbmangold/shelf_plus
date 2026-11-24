@@ -24,17 +24,208 @@
   "@homeEmptyTitle": {
     "description": "Placeholder title on Home screen."
   },
-  "homeEmptySubtitle": "Connect an Audiobookshelf server in Phase 1 to see Continue Listening and recently added books.",
+  "homeEmptySubtitle": "Pull down to sync your Audiobookshelf library and start listening.",
   "@homeEmptySubtitle": {
-    "description": "Placeholder subtitle on Home screen."
+    "description": "Empty state subtitle on Home screen."
+  },
+  "homeContinueListening": "Continue listening",
+  "@homeContinueListening": {
+    "description": "Hero section header on Home screen."
+  },
+  "homeInProgress": "In progress",
+  "@homeInProgress": {
+    "description": "In progress shelf title on Home screen."
+  },
+  "homeRecentlyAdded": "Recently added",
+  "@homeRecentlyAdded": {
+    "description": "Recently added shelf title on Home screen."
+  },
+  "homeOfflineBanner": "Offline — showing cached library",
+  "@homeOfflineBanner": {
+    "description": "Non-blocking banner shown when sync fails and cached books exist."
+  },
+  "homeSyncTooltip": "Sync library",
+  "@homeSyncTooltip": {
+    "description": "Tooltip for manual refresh button on Home screen."
+  },
+  "bookTimeLeft": "{time} left",
+  "@bookTimeLeft": {
+    "description": "Remaining listening time label.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bookFinished": "Finished",
+  "@bookFinished": {
+    "description": "Label shown when a book is completed."
   },
   "libraryEmptyTitle": "Library browser",
   "@libraryEmptyTitle": {
     "description": "Placeholder title on Library screen."
   },
-  "libraryEmptySubtitle": "Browse books, series, authors, and collections with instant offline search.",
+  "libraryEmptySubtitle": "Sync your Audiobookshelf server to browse books, series, authors, and collections.",
   "@libraryEmptySubtitle": {
-    "description": "Placeholder subtitle on Library screen."
+    "description": "Empty state subtitle on Library screen."
+  },
+  "librarySearchHint": "Search titles, authors, narrators, series…",
+  "@librarySearchHint": {
+    "description": "Search input placeholder on Library screen."
+  },
+  "libraryTabBooks": "Books",
+  "@libraryTabBooks": {
+    "description": "Browse mode label for Books."
+  },
+  "libraryTabSeries": "Series",
+  "@libraryTabSeries": {
+    "description": "Browse mode label for Series."
+  },
+  "libraryTabAuthors": "Authors",
+  "@libraryTabAuthors": {
+    "description": "Browse mode label for Authors."
+  },
+  "libraryTabCollections": "Collections",
+  "@libraryTabCollections": {
+    "description": "Browse mode label for Collections."
+  },
+  "librarySortAndFilter": "Sort & Filter",
+  "@librarySortAndFilter": {
+    "description": "Title for Sort and Filter bottom sheet."
+  },
+  "librarySortLabel": "Sort by",
+  "@librarySortLabel": {
+    "description": "Sort section label."
+  },
+  "libraryFilterLabel": "Filter",
+  "@libraryFilterLabel": {
+    "description": "Filter section label."
+  },
+  "librarySortTitleAsc": "Title A–Z",
+  "@librarySortTitleAsc": {
+    "description": "Sort books alphabetically by title."
+  },
+  "librarySortAuthorAsc": "Author A–Z",
+  "@librarySortAuthorAsc": {
+    "description": "Sort books alphabetically by author."
+  },
+  "librarySortAddedDesc": "Recently added",
+  "@librarySortAddedDesc": {
+    "description": "Sort books by newest added date."
+  },
+  "librarySortDurationDesc": "Longest first",
+  "@librarySortDurationDesc": {
+    "description": "Sort books by longest duration."
+  },
+  "libraryFilterAll": "All",
+  "@libraryFilterAll": {
+    "description": "Show all books."
+  },
+  "libraryFilterInProgress": "In progress",
+  "@libraryFilterInProgress": {
+    "description": "Show only in-progress books."
+  },
+  "libraryFilterFinished": "Finished",
+  "@libraryFilterFinished": {
+    "description": "Show only finished books."
+  },
+  "libraryFilterNotStarted": "Not started",
+  "@libraryFilterNotStarted": {
+    "description": "Show only unstarted books."
+  },
+  "libraryBookCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "@libraryBookCount": {
+    "description": "Book count subtitle for series, authors, or collections.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryNoMatches": "No matching books",
+  "@libraryNoMatches": {
+    "description": "Empty state when search or filter yields no books."
+  },
+  "libraryNoGroups": "Nothing here yet",
+  "@libraryNoGroups": {
+    "description": "Empty state when a library has no series, authors, or collections."
+  },
+  "libraryClearSearchTooltip": "Clear search",
+  "@libraryClearSearchTooltip": {
+    "description": "Tooltip for clear search button."
+  },
+  "bookDetailOverviewTab": "Overview",
+  "@bookDetailOverviewTab": {
+    "description": "Overview tab label on Book Detail screen."
+  },
+  "bookDetailChaptersTab": "Chapters",
+  "@bookDetailChaptersTab": {
+    "description": "Chapters tab label on Book Detail screen."
+  },
+  "bookDetailBookmarksTab": "Bookmarks",
+  "@bookDetailBookmarksTab": {
+    "description": "Bookmarks tab label on Book Detail screen."
+  },
+  "bookDetailNarratedBy": "Narrated by {narrators}",
+  "@bookDetailNarratedBy": {
+    "description": "Narrator attribution line.",
+    "placeholders": {
+      "narrators": {
+        "type": "String"
+      }
+    }
+  },
+  "bookDetailPlay": "Play",
+  "@bookDetailPlay": {
+    "description": "Play action button for unstarted book."
+  },
+  "bookDetailResume": "Resume",
+  "@bookDetailResume": {
+    "description": "Resume action button for in-progress book."
+  },
+  "bookDetailDownload": "Download",
+  "@bookDetailDownload": {
+    "description": "Download action button on Book Detail screen."
+  },
+  "bookDetailPlaybackPhase3": "Audio playback launches in Phase 3.",
+  "@bookDetailPlaybackPhase3": {
+    "description": "Placeholder notice when tapping Play before Phase 3."
+  },
+  "bookDetailDownloadPhase4": "Offline downloads launch in Phase 4.",
+  "@bookDetailDownloadPhase4": {
+    "description": "Placeholder notice when tapping Download before Phase 4."
+  },
+  "bookDetailNoChapters": "No chapters available",
+  "@bookDetailNoChapters": {
+    "description": "Empty state for Chapters tab."
+  },
+  "bookDetailNoBookmarks": "No bookmarks yet",
+  "@bookDetailNoBookmarks": {
+    "description": "Empty state for Bookmarks tab."
+  },
+  "bookDetailNoDescription": "No synopsis available for this audiobook.",
+  "@bookDetailNoDescription": {
+    "description": "Fallback when book synopsis is empty."
+  },
+  "bookDetailPublisherLabel": "Publisher",
+  "@bookDetailPublisherLabel": {
+    "description": "Metadata row label for publisher."
+  },
+  "bookDetailPublishedLabel": "Published",
+  "@bookDetailPublishedLabel": {
+    "description": "Metadata row label for publication year."
+  },
+  "bookDetailGenresLabel": "Genres",
+  "@bookDetailGenresLabel": {
+    "description": "Metadata row label for genres."
+  },
+  "bookDetailSeriesLabel": "Series",
+  "@bookDetailSeriesLabel": {
+    "description": "Metadata row label for series."
+  },
+  "bookDetailNotFound": "Book not found in local cache.",
+  "@bookDetailNotFound": {
+    "description": "Error state when a book detail cannot be loaded."
   },
   "downloadsEmptyTitle": "Offline downloads",
   "@downloadsEmptyTitle": {

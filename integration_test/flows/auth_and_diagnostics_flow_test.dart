@@ -35,6 +35,8 @@ void main() {
       secureStorage: storage,
       logExporter: exporter,
       useGoogleFonts: false,
+      enableNetworkImages: false,
+      autoSyncOnStart: false,
     )..logger.level = Level.FINE;
     addTearDown(deps.dispose);
 

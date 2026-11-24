@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shelf_plus/core/logging/app_logger.dart';
 import 'package:shelf_plus/core/network/abs_api_models.dart';
+import 'package:shelf_plus/core/network/abs_library_models.dart';
 import 'package:shelf_plus/core/network/abs_url_builder.dart';
 import 'package:shelf_plus/core/network/auth_token_refresh_interceptor.dart';
 import 'package:shelf_plus/core/network/auth_tokens.dart';
@@ -265,6 +266,160 @@ class AbsApiClient {
     } on DioException {
       // Best-effort logout; local credential cleanup proceeds regardless.
     }
+  }
+
+  /// Fetches all libraries visible to the authenticated user (`GET /api/libraries`).
+  Future<List<AbsLibraryDto>> fetchLibraries({required String baseUrl}) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/libraries');
+
+    try {
+      final response = await _authenticatedDio.get<Map<String, dynamic>>(url);
+      final data = response.data;
+      final rawLibraries = data?['libraries'];
+      if (rawLibraries is! List) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'Libraries response did not include a libraries array.',
+        );
+      }
+      return rawLibraries
+          .whereType<Map<String, dynamic>>()
+          .map(AbsLibraryDto.fromJson)
+          .where((lib) => lib.id.isNotEmpty)
+          .toList(growable: false);
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Fetches a page of items for [libraryId] (`GET /api/libraries/:id/items`).
+  Future<AbsLibraryItemsPageDto> fetchLibraryItems({
+    required String baseUrl,
+    required String libraryId,
+    int page = 0,
+    int limit = 100,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/libraries/$libraryId/items',
+    );
+
+    try {
+      final response = await _authenticatedDio.get<Map<String, dynamic>>(
+        url,
+        queryParameters: <String, Object?>{
+          'page': page,
+          'limit': limit,
+          'minified': 0,
+        },
+      );
+      final data = response.data;
+      if (data == null) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'Library items response was empty.',
+        );
+      }
+      return AbsLibraryItemsPageDto.fromJson(data);
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Fetches an expanded single item (`GET /api/items/:id?expanded=1`).
+  Future<AbsBookItemDto> fetchItemExpanded({
+    required String baseUrl,
+    required String itemId,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/items/$itemId');
+
+    try {
+      final response = await _authenticatedDio.get<Map<String, dynamic>>(
+        url,
+        queryParameters: const <String, Object?>{'expanded': 1},
+      );
+      final data = response.data;
+      if (data == null || data['id'] is! String) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'Expanded item response was invalid.',
+        );
+      }
+      return AbsBookItemDto.fromJson(data);
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Fetches the authenticated user's progress and bookmarks (`GET /api/me`).
+  Future<AbsUserProfileSyncDto> fetchMe({required String baseUrl}) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/me');
+
+    try {
+      final response = await _authenticatedDio.get<Map<String, dynamic>>(url);
+      final data = response.data;
+      if (data == null) {
+        throw const AbsApiException(
+          kind: AbsApiErrorKind.invalidServerResponse,
+          message: 'User profile response was empty.',
+        );
+      }
+      return AbsUserProfileSyncDto.fromJson(data);
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Fetches collections for [libraryId] (`GET /api/libraries/:id/collections`).
+  Future<List<AbsCollectionDto>> fetchCollections({
+    required String baseUrl,
+    required String libraryId,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(
+      normalized,
+      '/api/libraries/$libraryId/collections',
+    );
+
+    try {
+      final response = await _authenticatedDio.get<Map<String, dynamic>>(url);
+      final data = response.data;
+      final rawCollections = data?['results'] ?? data?['collections'];
+      if (rawCollections is! List) {
+        return const <AbsCollectionDto>[];
+      }
+      return rawCollections
+          .whereType<Map<String, dynamic>>()
+          .map(AbsCollectionDto.fromJson)
+          .where((c) => c.id.isNotEmpty)
+          .toList(growable: false);
+    } on AbsApiException {
+      rethrow;
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
+  /// Builds a subpath-safe cover image URL for [itemId].
+  static String buildCoverUrl({
+    required String baseUrl,
+    required String itemId,
+    int width = 600,
+  }) {
+    final resolved = AbsUrlBuilder.resolve(baseUrl, '/api/items/$itemId/cover');
+    return '$resolved?width=$width';
   }
 
   String _normalizeOrThrow(String rawUrl) {

@@ -29,14 +29,159 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeEmptySubtitle =>
-      'Connect an Audiobookshelf server in Phase 1 to see Continue Listening and recently added books.';
+      'Pull down to sync your Audiobookshelf library and start listening.';
+
+  @override
+  String get homeContinueListening => 'Continue listening';
+
+  @override
+  String get homeInProgress => 'In progress';
+
+  @override
+  String get homeRecentlyAdded => 'Recently added';
+
+  @override
+  String get homeOfflineBanner => 'Offline — showing cached library';
+
+  @override
+  String get homeSyncTooltip => 'Sync library';
+
+  @override
+  String bookTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get bookFinished => 'Finished';
 
   @override
   String get libraryEmptyTitle => 'Library browser';
 
   @override
   String get libraryEmptySubtitle =>
-      'Browse books, series, authors, and collections with instant offline search.';
+      'Sync your Audiobookshelf server to browse books, series, authors, and collections.';
+
+  @override
+  String get librarySearchHint => 'Search titles, authors, narrators, series…';
+
+  @override
+  String get libraryTabBooks => 'Books';
+
+  @override
+  String get libraryTabSeries => 'Series';
+
+  @override
+  String get libraryTabAuthors => 'Authors';
+
+  @override
+  String get libraryTabCollections => 'Collections';
+
+  @override
+  String get librarySortAndFilter => 'Sort & Filter';
+
+  @override
+  String get librarySortLabel => 'Sort by';
+
+  @override
+  String get libraryFilterLabel => 'Filter';
+
+  @override
+  String get librarySortTitleAsc => 'Title A–Z';
+
+  @override
+  String get librarySortAuthorAsc => 'Author A–Z';
+
+  @override
+  String get librarySortAddedDesc => 'Recently added';
+
+  @override
+  String get librarySortDurationDesc => 'Longest first';
+
+  @override
+  String get libraryFilterAll => 'All';
+
+  @override
+  String get libraryFilterInProgress => 'In progress';
+
+  @override
+  String get libraryFilterFinished => 'Finished';
+
+  @override
+  String get libraryFilterNotStarted => 'Not started';
+
+  @override
+  String libraryBookCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count books',
+      one: '1 book',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get libraryNoMatches => 'No matching books';
+
+  @override
+  String get libraryNoGroups => 'Nothing here yet';
+
+  @override
+  String get libraryClearSearchTooltip => 'Clear search';
+
+  @override
+  String get bookDetailOverviewTab => 'Overview';
+
+  @override
+  String get bookDetailChaptersTab => 'Chapters';
+
+  @override
+  String get bookDetailBookmarksTab => 'Bookmarks';
+
+  @override
+  String bookDetailNarratedBy(String narrators) {
+    return 'Narrated by $narrators';
+  }
+
+  @override
+  String get bookDetailPlay => 'Play';
+
+  @override
+  String get bookDetailResume => 'Resume';
+
+  @override
+  String get bookDetailDownload => 'Download';
+
+  @override
+  String get bookDetailPlaybackPhase3 => 'Audio playback launches in Phase 3.';
+
+  @override
+  String get bookDetailDownloadPhase4 => 'Offline downloads launch in Phase 4.';
+
+  @override
+  String get bookDetailNoChapters => 'No chapters available';
+
+  @override
+  String get bookDetailNoBookmarks => 'No bookmarks yet';
+
+  @override
+  String get bookDetailNoDescription =>
+      'No synopsis available for this audiobook.';
+
+  @override
+  String get bookDetailPublisherLabel => 'Publisher';
+
+  @override
+  String get bookDetailPublishedLabel => 'Published';
+
+  @override
+  String get bookDetailGenresLabel => 'Genres';
+
+  @override
+  String get bookDetailSeriesLabel => 'Series';
+
+  @override
+  String get bookDetailNotFound => 'Book not found in local cache.';
 
   @override
   String get downloadsEmptyTitle => 'Offline downloads';

@@ -7,6 +7,7 @@ environment:
   sdk: ^3.14.0
 
 dependencies:
+  cached_network_image: ^4.0.7
   dio: ^5.11.1
   drift: ^2.35.4
   drift_flutter: ^0.3.1
@@ -22,6 +23,7 @@ dependencies:
   material_ui: ^1.11.1
   path_provider: ^2.1.6
   share_plus: ^13.3.1
+  socket_io_client: ^3.1.6
   sqlite3_flutter_libs: ^0.6.0+eol
   uuid: ^4.6.0
 
