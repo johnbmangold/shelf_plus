@@ -87,5 +87,215 @@
   "settingsBundleIdLabel": "Application ID",
   "@settingsBundleIdLabel": {
     "description": "Bundle/application ID row label in Settings."
+  },
+  "settingsServerSection": "Server & Account",
+  "@settingsServerSection": {
+    "description": "Server and account section header in Settings."
+  },
+  "settingsSignOut": "Sign out",
+  "@settingsSignOut": {
+    "description": "Sign out button label in Settings."
+  },
+  "settingsSignOutTitle": "Sign out of server?",
+  "@settingsSignOutTitle": {
+    "description": "Sign out confirmation dialog title."
+  },
+  "settingsSignOutBody": "Stored credentials and custom proxy headers for this server will be removed from this device.",
+  "@settingsSignOutBody": {
+    "description": "Sign out confirmation dialog body."
+  },
+  "settingsCancel": "Cancel",
+  "@settingsCancel": {
+    "description": "Cancel action label."
+  },
+  "settingsDiagnosticsTitle": "Diagnostics",
+  "@settingsDiagnosticsTitle": {
+    "description": "Diagnostics row title in Settings."
+  },
+  "settingsDiagnosticsSubtitle": "Inspect and export redacted logs",
+  "@settingsDiagnosticsSubtitle": {
+    "description": "Diagnostics row subtitle in Settings."
+  },
+  "settingsVersionPrefix": "Server v{version}",
+  "@settingsVersionPrefix": {
+    "description": "Displays the connected Audiobookshelf server version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "loginTitle": "Connect to Audiobookshelf",
+  "@loginTitle": {
+    "description": "Heading on the server setup and login screen."
+  },
+  "loginSubtitle": "Enter your server URL and account credentials. Subpaths and reverse-proxy headers are supported.",
+  "@loginSubtitle": {
+    "description": "Subtitle on the login screen."
+  },
+  "loginServerUrlLabel": "Server URL",
+  "@loginServerUrlLabel": {
+    "description": "Text field label for server URL."
+  },
+  "loginServerUrlHint": "https://books.example.com",
+  "@loginServerUrlHint": {
+    "description": "Hint text for server URL."
+  },
+  "loginServerUrlRequired": "Enter a valid http:// or https:// server URL.",
+  "@loginServerUrlRequired": {
+    "description": "Validation error for invalid or empty server URL."
+  },
+  "loginTestConnection": "Test connection",
+  "@loginTestConnection": {
+    "description": "Button label to probe the server."
+  },
+  "loginTestingConnection": "Testing…",
+  "@loginTestingConnection": {
+    "description": "Button label while probing the server."
+  },
+  "loginConnectedBadge": "Connected ({version})",
+  "@loginConnectedBadge": {
+    "description": "Badge text when server probe succeeds with a version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "loginConnectedNoVersion": "Server reachable",
+  "@loginConnectedNoVersion": {
+    "description": "Badge text when server probe succeeds without a version string."
+  },
+  "loginCustomHeadersTitle": "Custom HTTP headers",
+  "@loginCustomHeadersTitle": {
+    "description": "Expandable section title for custom proxy headers."
+  },
+  "loginCustomHeadersSubtitle": "Optional headers for Cloudflare Access or reverse proxies",
+  "@loginCustomHeadersSubtitle": {
+    "description": "Subtitle for custom HTTP headers section."
+  },
+  "loginAddHeader": "Add header",
+  "@loginAddHeader": {
+    "description": "Button to add a custom HTTP header row."
+  },
+  "loginHeaderNameLabel": "Header name",
+  "@loginHeaderNameLabel": {
+    "description": "Label for custom HTTP header name field."
+  },
+  "loginHeaderValueLabel": "Header value",
+  "@loginHeaderValueLabel": {
+    "description": "Label for custom HTTP header value field."
+  },
+  "loginRemoveHeaderTooltip": "Remove header",
+  "@loginRemoveHeaderTooltip": {
+    "description": "Tooltip for removing a custom header row."
+  },
+  "loginUsernameLabel": "Username",
+  "@loginUsernameLabel": {
+    "description": "Username field label."
+  },
+  "loginUsernameRequired": "Enter your username.",
+  "@loginUsernameRequired": {
+    "description": "Validation error when username is empty."
+  },
+  "loginPasswordLabel": "Password",
+  "@loginPasswordLabel": {
+    "description": "Password field label."
+  },
+  "loginPasswordRequired": "Enter your password.",
+  "@loginPasswordRequired": {
+    "description": "Validation error when password is empty."
+  },
+  "loginTogglePasswordTooltip": "Toggle password visibility",
+  "@loginTogglePasswordTooltip": {
+    "description": "Tooltip for password visibility icon button."
+  },
+  "loginSignIn": "Sign in",
+  "@loginSignIn": {
+    "description": "Sign in primary button label."
+  },
+  "loginSigningIn": "Signing in…",
+  "@loginSigningIn": {
+    "description": "Sign in button label while request is in flight."
+  },
+  "loginViewDiagnostics": "View diagnostic logs",
+  "@loginViewDiagnostics": {
+    "description": "Link to open diagnostics screen from login."
+  },
+  "loginSessionExpiredNotice": "Your session expired. Sign in again to reconnect.",
+  "@loginSessionExpiredNotice": {
+    "description": "Banner shown on login screen after refresh token expiration."
+  },
+  "authErrorInvalidUrl": "The server URL is invalid. Include http:// or https://.",
+  "@authErrorInvalidUrl": {
+    "description": "Error shown for malformed server URL."
+  },
+  "authErrorUnreachable": "Could not reach the server. Check the URL and your network connection.",
+  "@authErrorUnreachable": {
+    "description": "Error shown when server cannot be contacted."
+  },
+  "authErrorTimeout": "Connection timed out while waiting for the server.",
+  "@authErrorTimeout": {
+    "description": "Error shown on request timeout."
+  },
+  "authErrorTls": "TLS certificate check failed. Verify your server's HTTPS certificate.",
+  "@authErrorTls": {
+    "description": "Error shown on TLS certificate error."
+  },
+  "authErrorProxyAuth": "Access was blocked by a proxy or gateway. Check your custom HTTP headers.",
+  "@authErrorProxyAuth": {
+    "description": "Error shown when proxy returns 401/403 on probe."
+  },
+  "authErrorCredentials": "Invalid username or password.",
+  "@authErrorCredentials": {
+    "description": "Error shown on invalid login credentials."
+  },
+  "authErrorInvalidResponse": "The server did not return a valid Audiobookshelf response.",
+  "@authErrorInvalidResponse": {
+    "description": "Error shown when server response cannot be parsed as ABS."
+  },
+  "authErrorUnknown": "Something went wrong while contacting the server.",
+  "@authErrorUnknown": {
+    "description": "Fallback error message."
+  },
+  "diagnosticsTitle": "Diagnostics",
+  "@diagnosticsTitle": {
+    "description": "Diagnostics screen app bar title."
+  },
+  "diagnosticsFilterAll": "All",
+  "@diagnosticsFilterAll": {
+    "description": "Filter chip showing all log levels."
+  },
+  "diagnosticsFilterInfo": "Info+",
+  "@diagnosticsFilterInfo": {
+    "description": "Filter chip showing INFO and above."
+  },
+  "diagnosticsFilterWarning": "Warnings+",
+  "@diagnosticsFilterWarning": {
+    "description": "Filter chip showing WARNING and above."
+  },
+  "diagnosticsFilterError": "Errors",
+  "@diagnosticsFilterError": {
+    "description": "Filter chip showing SEVERE errors."
+  },
+  "diagnosticsExportTooltip": "Export logs",
+  "@diagnosticsExportTooltip": {
+    "description": "Tooltip for export logs button."
+  },
+  "diagnosticsClearTooltip": "Clear logs",
+  "@diagnosticsClearTooltip": {
+    "description": "Tooltip for clear logs button."
+  },
+  "diagnosticsEmpty": "No diagnostic logs matching this filter.",
+  "@diagnosticsEmpty": {
+    "description": "Empty state shown in Diagnostics screen."
+  },
+  "diagnosticsExportEmpty": "There are no logs to export yet.",
+  "@diagnosticsExportEmpty": {
+    "description": "Snackbar shown when user tries to export an empty log buffer."
+  },
+  "diagnosticsExportFailed": "Could not export diagnostic logs.",
+  "@diagnosticsExportFailed": {
+    "description": "Snackbar shown when exporting logs fails."
   }
 }

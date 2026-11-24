@@ -26,8 +26,11 @@ jobs:
       - name: Generate localizations
         run: flutter gen-l10n
 
+      - name: Run build_runner codegen
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
 
       - name: Run static analysis
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -90,8 +93,11 @@ jobs:
           channel: "stable"
           cache: true
 
-      - name: Install dependencies and l10n
-        run: flutter pub get && flutter gen-l10n
+      - name: Install dependencies, l10n, and codegen
+        run: >-
+          flutter pub get &&
+          flutter gen-l10n &&
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Build dev APK
         run: flutter build apk --debug --flavor dev -t lib/main_dev.dart
@@ -114,8 +120,11 @@ jobs:
           channel: "stable"
           cache: true
 
-      - name: Install dependencies and l10n
-        run: flutter pub get && flutter gen-l10n
+      - name: Install dependencies, l10n, and codegen
+        run: >-
+          flutter pub get &&
+          flutter gen-l10n &&
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Build dev iOS app
         run: flutter build ios --debug --no-codesign --flavor dev -t lib/main_dev.dart
