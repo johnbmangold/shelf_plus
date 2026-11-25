@@ -215,7 +215,72 @@ void main() {
         final updated = await db.getMediaProgress('srv-1', 'item-1');
         check(updated?.localPositionSec).equals(1600);
         check(updated?.syncState).equals('synced');
+
+        // Verify both conflicting positions were preserved in playback history.
+        final history = await db.watchPlaybackHistory('srv-1', 'item-1').first;
+        check(
+          history.any(
+            (h) => h.reason == 'conflict_device' && h.positionSec == 900,
+          ),
+        ).isTrue;
+        check(
+          history.any(
+            (h) => h.reason == 'conflict_server' && h.positionSec == 1600,
+          ),
+        ).isTrue;
       },
     );
+
+    test('replays UUIDv4 LocalPlaybackSession, falls back on 404, and retries '
+        'transient 503 with exponential backoff', () async {
+      // 1. Queue a local session offline and replay via /api/syncLocalSession.
+      final session = await syncController.enqueueLocalSession(
+        itemId: 'item-1',
+        startTimeSec: 120,
+        currentTimeSec: 420,
+        durationSec: 3600,
+        timeListeningSec: 300,
+        isFinished: false,
+      );
+      check(session).isNotNull();
+      check(session!.id.length).equals(36);
+
+      // Simulate one transient 503 failure before succeeding.
+      server.failNextSyncCount = 1;
+      connectivity.setStatus(NetworkConnectionType.wifi);
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+
+      final failedRows = await db.getPendingSyncMutations('srv-1');
+      check(failedRows.length).equals(1);
+      check(failedRows.first.retryCount).equals(1);
+      check(OfflineSyncController.retryBackoffForAttempt(0))
+          .equals(const Duration(seconds: 2));
+      check(OfflineSyncController.retryBackoffForAttempt(3))
+          .equals(const Duration(seconds: 16));
+      check(OfflineSyncController.retryBackoffForAttempt(10))
+          .equals(const Duration(seconds: 300));
+
+      // Retry succeeds via /api/syncLocalSession.
+      await syncController.flushPendingMutations();
+      check(server.syncedLocalSessions.length).equals(1);
+      check(server.syncedLocalSessions.first['id']).equals(session.id);
+      check(server.syncedLocalSessions.first['currentTime']).equals(420);
+
+      // 2. When /api/syncLocalSession returns 404, fall back to PATCH.
+      server.failSyncLocalSessionWith404 = true;
+      await syncController.enqueueLocalSession(
+        itemId: 'item-1',
+        startTimeSec: 420,
+        currentTimeSec: 600,
+        durationSec: 3600,
+        timeListeningSec: 180,
+        isFinished: false,
+      );
+      await syncController.flushPendingMutations();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      check(server.patchedProgress.length).equals(1);
+      check(server.patchedProgress.first['currentTime']).equals(600);
+      check(syncController.pendingCount).equals(0);
+    });
   });
 }

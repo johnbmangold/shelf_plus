@@ -577,6 +577,21 @@ class AbsApiClient {
     }
   }
 
+  /// Syncs a completed or in-progress offline local playback session
+  /// (`POST /api/syncLocalSession`).
+  Future<void> syncLocalSession({
+    required String baseUrl,
+    required Map<String, Object?> sessionPayload,
+  }) async {
+    final normalized = _normalizeOrThrow(baseUrl);
+    final url = AbsUrlBuilder.resolve(normalized, '/api/syncLocalSession');
+    try {
+      await _authenticatedDio.post<void>(url, data: sessionPayload);
+    } on DioException catch (err) {
+      throw _mapDioException(err);
+    }
+  }
+
   /// Updates server listening progress (`PATCH /api/me/progress/:id`).
   Future<void> patchMediaProgress({
     required String baseUrl,

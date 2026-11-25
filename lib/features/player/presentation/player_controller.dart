@@ -114,6 +114,8 @@ class PlayerController extends ChangeNotifier {
   int? _lastSmartRewindSeconds;
   String? _errorMessage;
   double _lastKnownPositionSec = 0;
+  double _localSessionStartSec = 0;
+  int _localSessionStartedAtMs = 0;
   DateTime? _pausedAt;
   DateTime? _lastSyncAt;
   ColorScheme? _dynamicLightScheme;
@@ -350,6 +352,8 @@ class PlayerController extends ChangeNotifier {
         _mapper = mapper;
         _activeSession = playbackSession;
         _lastKnownPositionSec = initialResumeSec;
+        _localSessionStartSec = initialResumeSec;
+        _localSessionStartedAtMs = _now().toUtc().millisecondsSinceEpoch;
         _lastSyncAt = _now();
         await _engine.play();
         _startSyncTimer();
@@ -810,12 +814,19 @@ class PlayerController extends ChangeNotifier {
     final finished = dur > 0 && pos >= dur - 1;
 
     if (playbackSession.playMethod == AbsPlayMethod.local) {
-      await _offlineSyncController?.enqueueProgressSync(
+      await _offlineSyncController?.enqueueLocalSession(
         itemId: book.id,
+        startTimeSec: _localSessionStartSec,
         currentTimeSec: pos,
         durationSec: dur,
+        timeListeningSec: elapsedSec < 0 ? 0 : elapsedSec,
         isFinished: finished,
+        startedAtMs: _localSessionStartedAtMs > 0
+            ? _localSessionStartedAtMs
+            : null,
       );
+      _localSessionStartSec = pos;
+      _localSessionStartedAtMs = now.toUtc().millisecondsSinceEpoch;
       await _offlineSyncController?.flushPendingMutations();
       return;
     }
@@ -854,6 +865,9 @@ class PlayerController extends ChangeNotifier {
   Future<void> stopAndClose() async {
     _stopSyncTimer();
     await _sleepTimer.cancel();
+    if (_activeBook != null && _activeSession != null) {
+      await syncProgressNow();
+    }
     await _closeActiveServerSession();
     await _engine.stop();
     await _cancelItemStreams();

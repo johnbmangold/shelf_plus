@@ -245,13 +245,22 @@ class LibraryRepositoryImpl implements LibraryRepository {
     final mergedProgress = <MediaProgressEntriesCompanion>[];
     for (final p in me.mediaProgress) {
       final local = await _database.getMediaProgress(serverId, p.libraryItemId);
-      mergedProgress.add(
-        ProgressConflictResolver.mergeToCompanion(
-          serverId: serverId,
-          remote: p,
-          local: local,
-        ),
+      final merged = ProgressConflictResolver.mergeToCompanion(
+        serverId: serverId,
+        remote: p,
+        local: local,
       );
+      mergedProgress.add(merged);
+      if (merged.syncState.value == 'conflict' &&
+          local != null &&
+          local.syncState != 'conflict') {
+        await _recordConflictHistory(
+          serverId: serverId,
+          itemId: p.libraryItemId,
+          localPositionSec: local.localPositionSec,
+          serverPositionSec: p.currentTimeSec,
+        );
+      }
     }
     await _database.upsertMediaProgressEntries(mergedProgress);
     await _database.replaceBookmarksForServer(
@@ -369,16 +378,48 @@ class LibraryRepositoryImpl implements LibraryRepository {
           serverId,
           progress.libraryItemId,
         );
-        await _database.upsertMediaProgressEntries(
-          <MediaProgressEntriesCompanion>[
-            ProgressConflictResolver.mergeToCompanion(
-              serverId: serverId,
-              remote: progress,
-              local: local,
-            ),
-          ],
+        final merged = ProgressConflictResolver.mergeToCompanion(
+          serverId: serverId,
+          remote: progress,
+          local: local,
         );
+        await _database.upsertMediaProgressEntries(
+          <MediaProgressEntriesCompanion>[merged],
+        );
+        if (merged.syncState.value == 'conflict' &&
+            local != null &&
+            local.syncState != 'conflict') {
+          await _recordConflictHistory(
+            serverId: serverId,
+            itemId: progress.libraryItemId,
+            localPositionSec: local.localPositionSec,
+            serverPositionSec: progress.currentTimeSec,
+          );
+        }
     }
+  }
+
+  Future<void> _recordConflictHistory({
+    required String serverId,
+    required String itemId,
+    required double localPositionSec,
+    required double serverPositionSec,
+  }) async {
+    final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await _database.recordPlaybackHistory(
+      serverId: serverId,
+      libraryItemId: itemId,
+      positionSec: localPositionSec,
+      reason: 'conflict_device',
+      createdAtMs: nowMs,
+    );
+    await _database.recordPlaybackHistory(
+      serverId: serverId,
+      libraryItemId: itemId,
+      positionSec: serverPositionSec,
+      reason: 'conflict_server',
+      createdAtMs: nowMs + 1,
+    );
   }
 
   Future<void> _replaceChaptersFromDto(String serverId, AbsBookItemDto dto) {

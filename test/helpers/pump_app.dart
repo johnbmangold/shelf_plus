@@ -289,7 +289,9 @@ class _StubOfflineHttpAdapter implements HttpClientAdapter {
       });
     }
     if (options.method == 'POST' &&
-        (path.endsWith('/sync') || path.endsWith('/close'))) {
+        (path.endsWith('/sync') ||
+            path.endsWith('/close') ||
+            path.endsWith('/syncLocalSession'))) {
       return _json(200, <String, Object?>{'success': true});
     }
     if (options.method == 'GET' && path.contains('/api/items/')) {

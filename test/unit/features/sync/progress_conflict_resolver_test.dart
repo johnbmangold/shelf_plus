@@ -13,6 +13,9 @@ void main() {
       required double server,
       required double baseline,
       String syncState = 'synced',
+      bool isFinished = false,
+      int localUpdatedAtMs = baseTime,
+      int serverUpdatedAtMs = baseTime,
     }) {
       return MediaProgressEntry(
         serverId: 'srv-1',
@@ -22,22 +25,26 @@ void main() {
         serverPositionSec: server,
         lastSyncedPositionSec: baseline,
         progress: local / 3600,
-        isFinished: false,
+        isFinished: isFinished,
         hideFromContinueListening: false,
-        localUpdatedAtMs: baseTime,
-        serverUpdatedAtMs: baseTime,
+        localUpdatedAtMs: localUpdatedAtMs,
+        serverUpdatedAtMs: serverUpdatedAtMs,
         syncState: syncState,
       );
     }
 
-    AbsMediaProgressDto remote(double pos) => AbsMediaProgressDto(
+    AbsMediaProgressDto remote(
+      double pos, {
+      bool isFinished = false,
+      int lastUpdateMs = baseTime + 5000,
+    }) => AbsMediaProgressDto(
       libraryItemId: 'item-1',
       durationSec: 3600,
       currentTimeSec: pos,
       progress: pos / 3600,
-      isFinished: false,
+      isFinished: isFinished,
       hideFromContinueListening: false,
-      lastUpdateMs: baseTime + 5000,
+      lastUpdateMs: lastUpdateMs,
     );
 
     test('accepts remote when no local progress or no local divergence', () {
@@ -60,7 +67,7 @@ void main() {
     });
 
     test(
-      'preserves local pendingPush when server did not move past tolerance',
+      'preserves local pendingPush when server did not move past 30s tolerance',
       () {
         final pending = entry(
           local: 650,
@@ -71,13 +78,13 @@ void main() {
         check(
           ProgressConflictResolver.resolve(
             local: pending,
-            remotePositionSec: 103,
+            remotePositionSec: 125,
           ),
         ).equals(ProgressMergeOutcome.keepLocalPendingPush);
 
         final companion = ProgressConflictResolver.mergeToCompanion(
           serverId: 'srv-1',
-          remote: remote(103),
+          remote: remote(125),
           local: pending,
         );
         check(companion.localPositionSec.value).equals(650);
@@ -85,9 +92,9 @@ void main() {
       },
     );
 
-    test('marks alreadySynced when both sides moved within 5s tolerance', () {
+    test('marks alreadySynced when both sides moved within 30s tolerance', () {
       final pending = entry(
-        local: 602,
+        local: 625,
         server: 100,
         baseline: 100,
         syncState: 'pendingPush',
@@ -105,10 +112,10 @@ void main() {
         local: pending,
       );
       check(companion.syncState.value).equals('synced');
-      check(companion.lastSyncedPositionSec.value).equals(602);
+      check(companion.lastSyncedPositionSec.value).equals(625);
     });
 
-    test('flags conflict when device and server diverged independently', () {
+    test('flags conflict when device and server diverged past 30s', () {
       final pending = entry(
         local: 850,
         server: 100,
@@ -130,6 +137,77 @@ void main() {
       check(companion.localPositionSec.value).equals(850);
       check(companion.serverPositionSec.value).equals(1400);
       check(companion.syncState.value).equals('conflict');
+    });
+
+    test('remains resilient to severe device/server clock skew', () {
+      // Device clock is 10 hours behind server, yet local pending progress is
+      // preserved when server stayed within tolerance of baseline.
+      final deviceBehind = entry(
+        local: 900,
+        server: 100,
+        baseline: 100,
+        syncState: 'pendingPush',
+        localUpdatedAtMs: baseTime - 36000000,
+      );
+      final kept = ProgressConflictResolver.mergeToCompanion(
+        serverId: 'srv-1',
+        remote: remote(115, lastUpdateMs: baseTime + 36000000),
+        local: deviceBehind,
+      );
+      check(kept.syncState.value).equals('pendingPush');
+      check(kept.localPositionSec.value).equals(900);
+
+      // Device clock is 10 hours ahead, yet true divergence still flags
+      // conflict instead of silently clobbering the server position.
+      final deviceAhead = entry(
+        local: 900,
+        server: 100,
+        baseline: 100,
+        syncState: 'pendingPush',
+        localUpdatedAtMs: baseTime + 36000000,
+      );
+      final conflicted = ProgressConflictResolver.mergeToCompanion(
+        serverId: 'srv-1',
+        remote: remote(1800, lastUpdateMs: baseTime - 36000000),
+        local: deviceAhead,
+      );
+      check(conflicted.syncState.value).equals('conflict');
+    });
+
+    test('handles finished vs unfinished divergence and conflict recovery', () {
+      final localUnfinished = entry(
+        local: 1200,
+        server: 100,
+        baseline: 100,
+        syncState: 'pendingPush',
+      );
+      final finishedConflict = ProgressConflictResolver.mergeToCompanion(
+        serverId: 'srv-1',
+        remote: remote(3600, isFinished: true),
+        local: localUnfinished,
+      );
+      check(finishedConflict.syncState.value).equals('conflict');
+
+      // Existing conflict auto-clears if remote catches up within 30s and
+      // matches finished state.
+      final existingConflict = entry(
+        local: 1200,
+        server: 1800,
+        baseline: 100,
+        syncState: 'conflict',
+      );
+      check(
+        ProgressConflictResolver.resolve(
+          local: existingConflict,
+          remotePositionSec: 1215,
+        ),
+      ).equals(ProgressMergeOutcome.alreadySynced);
+      check(
+        ProgressConflictResolver.resolve(
+          local: existingConflict,
+          remotePositionSec: 1800,
+        ),
+      ).equals(ProgressMergeOutcome.conflict);
     });
   });
 }

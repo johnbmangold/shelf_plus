@@ -27,15 +27,18 @@ enum ConflictResolutionChoice {
 }
 
 /// Pure 3-way merge resolver comparing local position, server position, and
-/// `lastSyncedPositionSec` against a 5-second jitter tolerance.
+/// `lastSyncedPositionSec` against a 30-second tolerance window without
+/// trusting wall-clock timestamps across devices.
 abstract final class ProgressConflictResolver {
   /// Tolerance window in seconds treated as equivalent progress.
-  static const double toleranceSec = 5;
+  static const double toleranceSec = 30;
 
-  /// Determines the merge outcome for [local] vs [remotePositionSec].
+  /// Determines the merge outcome for [local] vs [remotePositionSec] and
+  /// [remoteIsFinished].
   static ProgressMergeOutcome resolve({
     required MediaProgressEntry? local,
     required double remotePositionSec,
+    bool remoteIsFinished = false,
   }) {
     if (local == null) return ProgressMergeOutcome.acceptRemote;
 
@@ -44,10 +47,14 @@ abstract final class ProgressConflictResolver {
     final localChanged =
         (localPos - baseline).abs() > toleranceSec ||
         local.syncState == 'pendingPush';
-    final remoteChanged = (remotePositionSec - baseline).abs() > toleranceSec;
+    final remoteChanged =
+        (remotePositionSec - baseline).abs() > toleranceSec ||
+        (remoteIsFinished != local.isFinished &&
+            (remotePositionSec - localPos).abs() > toleranceSec);
 
     if (local.syncState == 'conflict') {
-      if ((remotePositionSec - localPos).abs() <= toleranceSec) {
+      if ((remotePositionSec - localPos).abs() <= toleranceSec &&
+          remoteIsFinished == local.isFinished) {
         return ProgressMergeOutcome.alreadySynced;
       }
       return ProgressMergeOutcome.conflict;
@@ -59,7 +66,8 @@ abstract final class ProgressConflictResolver {
     if (!remoteChanged) {
       return ProgressMergeOutcome.keepLocalPendingPush;
     }
-    if ((remotePositionSec - localPos).abs() <= toleranceSec) {
+    if ((remotePositionSec - localPos).abs() <= toleranceSec &&
+        remoteIsFinished == local.isFinished) {
       return ProgressMergeOutcome.alreadySynced;
     }
     return ProgressMergeOutcome.conflict;
@@ -75,6 +83,7 @@ abstract final class ProgressConflictResolver {
     final outcome = resolve(
       local: local,
       remotePositionSec: remote.currentTimeSec,
+      remoteIsFinished: remote.isFinished,
     );
 
     switch (outcome) {

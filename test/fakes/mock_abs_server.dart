@@ -131,6 +131,23 @@ class MockAbsServer {
   /// Recorded `PATCH /api/me/progress/:id` payloads.
   final List<Map<String, dynamic>> patchedProgress = <Map<String, dynamic>>[];
 
+  /// Recorded `POST /api/syncLocalSession` payloads.
+  final List<Map<String, dynamic>> syncedLocalSessions =
+      <Map<String, dynamic>>[];
+
+  /// When `true`, `POST /api/syncLocalSession` returns HTTP 404 to test
+  /// automatic fallback to `PATCH /api/me/progress/:id`.
+  bool failSyncLocalSessionWith404 = false;
+
+  /// Number of upcoming `/api/syncLocalSession` or `/api/me/progress/` calls
+  /// that should fail with HTTP 503 to test retry backoff.
+  int failNextSyncCount = 0;
+
+  /// Optional per-item progress overrides injected into `GET /api/me` to
+  /// simulate concurrent progress from another device.
+  final Map<String, Map<String, Object?>> serverProgressOverrides =
+      <String, Map<String, Object?>>{};
+
   /// Recorded `Range` headers observed on `/api/items/:id/file/:ino`.
   final List<String?> audioFileRangeHeaders = <String?>[];
 
@@ -337,7 +354,23 @@ class MockAbsServer {
       if (authHeader != 'Bearer $currentAccessToken') {
         return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
       }
-      return _jsonResponse(200, AbsLibraryFixtures.meResponseJson());
+      final mePayload = Map<String, Object?>.from(
+        AbsLibraryFixtures.meResponseJson(),
+      );
+      if (serverProgressOverrides.isNotEmpty) {
+        final existing =
+            (mePayload['mediaProgress'] as List<Object?>? ?? <Object?>[])
+                .whereType<Map<String, Object?>>()
+                .where(
+                  (entry) => !serverProgressOverrides.containsKey(
+                    entry['libraryItemId'],
+                  ),
+                )
+                .toList()
+              ..addAll(serverProgressOverrides.values);
+        mePayload['mediaProgress'] = existing;
+      }
+      return _jsonResponse(200, mePayload);
     }
 
     if (request.method == 'POST' &&
@@ -465,11 +498,34 @@ class MockAbsServer {
       return _jsonResponse(200, <String, Object?>{'success': true});
     }
 
+    if (request.method == 'POST' &&
+        normalizedEndpoint == '/api/syncLocalSession') {
+      final authHeader = _headerIgnoreCase(request.headers, 'authorization');
+      if (authHeader != 'Bearer $currentAccessToken') {
+        return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      if (failSyncLocalSessionWith404) {
+        return _jsonResponse(404, <String, Object?>{'error': 'Not supported'});
+      }
+      if (failNextSyncCount > 0) {
+        failNextSyncCount--;
+        return _jsonResponse(503, <String, Object?>{'error': 'Unavailable'});
+      }
+      final bodyText = await request.readAsString();
+      final decoded = jsonDecode(bodyText) as Map<String, dynamic>;
+      syncedLocalSessions.add(decoded);
+      return _jsonResponse(200, <String, Object?>{'success': true});
+    }
+
     if (request.method == 'PATCH' &&
         normalizedEndpoint.startsWith('/api/me/progress/')) {
       final authHeader = _headerIgnoreCase(request.headers, 'authorization');
       if (authHeader != 'Bearer $currentAccessToken') {
         return _jsonResponse(401, <String, Object?>{'error': 'Expired token'});
+      }
+      if (failNextSyncCount > 0) {
+        failNextSyncCount--;
+        return _jsonResponse(503, <String, Object?>{'error': 'Unavailable'});
       }
       final bodyText = await request.readAsString();
       final decoded = jsonDecode(bodyText) as Map<String, dynamic>;

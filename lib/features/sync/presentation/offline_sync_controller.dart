@@ -6,9 +6,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shelf_plus/core/database/app_database.dart';
 import 'package:shelf_plus/core/logging/app_logger.dart';
 import 'package:shelf_plus/core/network/abs_api_client.dart';
+import 'package:shelf_plus/core/network/abs_api_models.dart';
 import 'package:shelf_plus/core/network/connectivity_service.dart';
 import 'package:shelf_plus/features/auth/presentation/auth_controller.dart';
+import 'package:shelf_plus/features/sync/domain/local_playback_session.dart';
 import 'package:shelf_plus/features/sync/domain/progress_conflict_resolver.dart';
+import 'package:uuid/uuid.dart';
 
 /// Coordinates durable offline sync mutation queuing, automatic flush on
 /// reconnect/foreground, and 3-way progress conflict resolution.
@@ -21,7 +24,9 @@ class OfflineSyncController extends ChangeNotifier {
     required this._connectivityService,
     required this._logger,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now {
+    String Function()? sessionIdGenerator,
+  }) : _now = now ?? DateTime.now,
+       _sessionIdGenerator = sessionIdGenerator ?? _defaultSessionId {
     _lastConnection = _connectivityService.currentStatus;
     _connectivitySub = _connectivityService.onStatusChanged.listen(
       _onConnectivityChanged,
@@ -34,12 +39,28 @@ class OfflineSyncController extends ChangeNotifier {
     });
   }
 
+  /// Maximum consecutive retry attempts before a mutation is skipped during
+  /// automatic flush passes.
+  static const int maxRetryCount = 5;
+
+  static const Uuid _uuid = Uuid();
+  static String _defaultSessionId() => _uuid.v4();
+
+  /// Computes exponential retry backoff for [retryCount], capped at 5 minutes.
+  static Duration retryBackoffForAttempt(int retryCount) {
+    final safeAttempt = retryCount < 0 ? 0 : retryCount;
+    final multiplier = 1 << safeAttempt.clamp(0, 8);
+    final seconds = (2 * multiplier).clamp(2, 300);
+    return Duration(seconds: seconds);
+  }
+
   final AbsApiClient _apiClient;
   final AppDatabase _database;
   final AuthController _authController;
   final ConnectivityService _connectivityService;
   final AppLogger _logger;
   final DateTime Function() _now;
+  final String Function() _sessionIdGenerator;
 
   StreamSubscription<NetworkConnectionType>? _connectivitySub;
   StreamSubscription<int>? _pendingCountSub;
@@ -63,6 +84,41 @@ class OfflineSyncController extends ChangeNotifier {
 
   /// Whether a sync flush pass is currently running.
   bool get isFlushing => _isFlushing;
+
+  /// Queues a UUIDv4 [LocalPlaybackSession] for replay via
+  /// `POST /api/syncLocalSession` (with automatic `PATCH` fallback).
+  Future<LocalPlaybackSession?> enqueueLocalSession({
+    required String itemId,
+    required double startTimeSec,
+    required double currentTimeSec,
+    required double durationSec,
+    required double timeListeningSec,
+    required bool isFinished,
+    int? startedAtMs,
+  }) async {
+    final serverId = _authController.session?.serverId;
+    if (serverId == null) return null;
+    final nowMs = _now().toUtc().millisecondsSinceEpoch;
+    final session = LocalPlaybackSession(
+      id: _sessionIdGenerator(),
+      libraryItemId: itemId,
+      durationSec: durationSec,
+      startTimeSec: startTimeSec,
+      currentTimeSec: currentTimeSec,
+      timeListeningSec: timeListeningSec < 0 ? 0 : timeListeningSec,
+      startedAtMs: startedAtMs ?? nowMs,
+      updatedAtMs: nowMs,
+      isFinished: isFinished,
+    );
+    await _database.enqueueSyncMutation(
+      serverId: serverId,
+      libraryItemId: itemId,
+      mutationType: 'localSession',
+      payloadJson: jsonEncode(session.toJson()),
+      createdAtMs: nowMs,
+    );
+    return session;
+  }
 
   /// Queues or updates the latest listening progress mutation for [itemId].
   Future<void> enqueueProgressSync({
@@ -145,13 +201,19 @@ class OfflineSyncController extends ChangeNotifier {
                 NetworkConnectionType.offline) {
           break;
         }
+        if (mutation.retryCount >= maxRetryCount) {
+          continue;
+        }
         try {
           await _processMutation(session.serverId, session.baseUrl, mutation);
           await _database.deleteSyncMutation(mutation.id);
         } on Object catch (err, stackTrace) {
+          final backoff = retryBackoffForAttempt(mutation.retryCount);
           _logger.warning(
             'Failed flushing ${mutation.mutationType} mutation '
-            'for ${mutation.libraryItemId}',
+            'for ${mutation.libraryItemId} '
+            '(attempt ${mutation.retryCount + 1}/$maxRetryCount, '
+            'next backoff ${backoff.inSeconds}s)',
             scope: 'sync',
             error: err,
             stackTrace: stackTrace,
@@ -175,6 +237,38 @@ class OfflineSyncController extends ChangeNotifier {
   ) async {
     final decoded = jsonDecode(mutation.payloadJson) as Map<String, dynamic>;
     switch (mutation.mutationType) {
+      case 'localSession':
+        final existing = await _database.getMediaProgress(
+          serverId,
+          mutation.libraryItemId,
+        );
+        if (existing != null && existing.syncState == 'conflict') {
+          return;
+        }
+        final localSession = LocalPlaybackSession.fromJson(decoded);
+        try {
+          await _apiClient.syncLocalSession(
+            baseUrl: baseUrl,
+            sessionPayload: localSession.toJson(),
+          );
+        } on AbsApiException catch (err) {
+          if (err.statusCode != 404) rethrow;
+          await _apiClient.patchMediaProgress(
+            baseUrl: baseUrl,
+            itemId: mutation.libraryItemId,
+            currentTimeSec: localSession.currentTimeSec,
+            durationSec: localSession.durationSec,
+            isFinished: localSession.isFinished,
+          );
+        }
+        await _database.updateLocalProgress(
+          serverId: serverId,
+          libraryItemId: mutation.libraryItemId,
+          positionSec: localSession.currentTimeSec,
+          durationSec: localSession.durationSec,
+          updatedAtMs: localSession.updatedAtMs,
+          markSynced: true,
+        );
       case 'progress':
         final existing = await _database.getMediaProgress(
           serverId,
@@ -233,6 +327,24 @@ class OfflineSyncController extends ChangeNotifier {
     if (entry == null) return;
 
     final nowMs = _now().toUtc().millisecondsSinceEpoch;
+
+    // Preserve both conflicting positions in playback history so the listener
+    // can always jump back to either device's timestamp after resolving.
+    await _database.recordPlaybackHistory(
+      serverId: serverId,
+      libraryItemId: itemId,
+      positionSec: entry.localPositionSec,
+      reason: 'conflict_device',
+      createdAtMs: nowMs,
+    );
+    await _database.recordPlaybackHistory(
+      serverId: serverId,
+      libraryItemId: itemId,
+      positionSec: entry.serverPositionSec,
+      reason: 'conflict_server',
+      createdAtMs: nowMs + 1,
+    );
+
     switch (choice) {
       case ConflictResolutionChoice.keepDevice:
         final dur = entry.durationSec;

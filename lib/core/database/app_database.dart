@@ -1058,13 +1058,14 @@ class AppDatabase extends _$AppDatabase {
     )..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  /// Removes any queued `'progress'` mutations for [serverId] and [itemId].
+  /// Removes any queued `'progress'` or `'localSession'` mutations for
+  /// [serverId] and [itemId].
   Future<void> deleteProgressMutationsForItem(String serverId, String itemId) {
     return (delete(pendingSyncMutations)..where(
           (tbl) =>
               tbl.serverId.equals(serverId) &
               tbl.libraryItemId.equals(itemId) &
-              tbl.mutationType.equals('progress'),
+              tbl.mutationType.isIn(const <String>['progress', 'localSession']),
         ))
         .go();
   }
