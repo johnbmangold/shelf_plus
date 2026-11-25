@@ -502,7 +502,10 @@ class _BookList extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(height: 6),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 2,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: <Widget>[
                             Text(
                               isFinished
@@ -523,22 +526,18 @@ class _BookList extends StatelessWidget {
                               ),
                             ),
                             if (book.seriesName != null &&
-                                book.seriesName!.isNotEmpty) ...<Widget>[
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  book.seriesSequence != null
-                                      ? '${book.seriesName} '
-                                            '#${book.seriesSequence}'
-                                      : book.seriesName!,
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: tokens.subtleMetaText,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                book.seriesName!.isNotEmpty)
+                              Text(
+                                book.seriesSequence != null
+                                    ? '${book.seriesName} '
+                                          '#${book.seriesSequence}'
+                                    : book.seriesName!,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: tokens.subtleMetaText,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
                           ],
                         ),
                       ],
@@ -567,7 +566,7 @@ class _EmptyMessageCard extends StatelessWidget {
     final tokens = context.shelfTokens;
 
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Card(
           child: Padding(

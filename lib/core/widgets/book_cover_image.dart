@@ -105,23 +105,26 @@ class _CoverPlaceholder extends StatelessWidget {
     return ColoredBox(
       color: colorScheme.surfaceContainerHigh,
       child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              initial,
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(color: colorScheme.primary),
-            ),
-            if (size >= 88) ...<Widget>[
-              const SizedBox(height: 4),
-              Icon(
-                Icons.menu_book_outlined,
-                size: 16,
-                color: tokens.subtleMetaText,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                initial,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(color: colorScheme.primary),
               ),
+              if (size >= 88) ...<Widget>[
+                const SizedBox(height: 4),
+                Icon(
+                  Icons.menu_book_outlined,
+                  size: 16,
+                  color: tokens.subtleMetaText,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -393,8 +393,11 @@ class _HorizontalBookShelf extends StatelessWidget {
     final theme = Theme.of(context);
     final tokens = context.shelfTokens;
 
+    final textScale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.5);
+    final shelfHeight = 136 + (68 * textScale);
+
     return SizedBox(
-      height: 204,
+      height: shelfHeight,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: books.length,

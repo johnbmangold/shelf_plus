@@ -147,68 +147,78 @@ class _ActiveMiniPlayer extends StatelessWidget {
             value: controller.progressRatio,
             minHeight: 2.5,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
+            semanticsLabel: book.title,
+            semanticsValue: '${(controller.progressRatio * 100).round()}%',
           ),
-          InkWell(
-            key: const Key('mini_player_bar'),
-            onTap: onOpenPlayer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: <Widget>[
-                  BookCoverImage(
-                    title: book.title,
-                    size: 42,
-                    coverUrl: controller.activeCoverUrl,
-                    headers: controller.activeCoverHeaders,
-                    enableNetworkImage: enableNetworkImages,
-                    borderRadius: 8,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          book.title,
-                          style: theme.textTheme.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          controller.isBusy ? l10n.playerBuffering : subtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: tokens.subtleMetaText,
+          Semantics(
+            container: true,
+            label: '${book.title}, $subtitle',
+            hint: l10n.playerTitle,
+            child: InkWell(
+              key: const Key('mini_player_bar'),
+              onTap: onOpenPlayer,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    BookCoverImage(
+                      title: book.title,
+                      size: 42,
+                      coverUrl: controller.activeCoverUrl,
+                      headers: controller.activeCoverHeaders,
+                      enableNetworkImage: enableNetworkImages,
+                      borderRadius: 8,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            book.title,
+                            style: theme.textTheme.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                          Text(
+                            controller.isBusy ? l10n.playerBuffering : subtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: tokens.subtleMetaText,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    key: const Key('mini_player_rewind_button'),
-                    tooltip: l10n.playerRewindSeconds(15),
-                    onPressed: () {
-                      unawaited(controller.rewind());
-                    },
-                    icon: const Icon(Icons.replay_10_rounded),
-                  ),
-                  IconButton.filled(
-                    key: const Key('mini_player_play_pause_button'),
-                    tooltip: controller.isPlaying
-                        ? l10n.playerPause
-                        : l10n.playerPlay,
-                    onPressed: () {
-                      unawaited(controller.togglePlayPause());
-                    },
-                    icon: Icon(
-                      controller.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
+                    IconButton(
+                      key: const Key('mini_player_rewind_button'),
+                      tooltip: l10n.playerRewindSeconds(15),
+                      onPressed: () {
+                        unawaited(controller.rewind());
+                      },
+                      icon: const Icon(Icons.replay_10_rounded),
                     ),
-                  ),
-                ],
+                    IconButton.filled(
+                      key: const Key('mini_player_play_pause_button'),
+                      tooltip: controller.isPlaying
+                          ? l10n.playerPause
+                          : l10n.playerPlay,
+                      onPressed: () {
+                        unawaited(controller.togglePlayPause());
+                      },
+                      icon: Icon(
+                        controller.isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

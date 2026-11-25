@@ -365,55 +365,74 @@ class _ActivePlayerBody extends StatelessWidget {
                 ],
                 const SizedBox(height: 14),
                 Center(
-                  child: SegmentedButton<PlayerScrubberMode>(
-                    key: const Key('player_scrubber_mode'),
-                    segments: <ButtonSegment<PlayerScrubberMode>>[
-                      ButtonSegment<PlayerScrubberMode>(
-                        value: PlayerScrubberMode.book,
-                        label: Text(l10n.playerScrubBook),
-                      ),
-                      ButtonSegment<PlayerScrubberMode>(
-                        value: PlayerScrubberMode.chapter,
-                        enabled: chapter != null,
-                        label: Text(l10n.playerScrubChapter),
-                      ),
-                    ],
-                    selected: <PlayerScrubberMode>{
-                      if (hasChapterSpan)
-                        PlayerScrubberMode.chapter
-                      else
-                        PlayerScrubberMode.book,
-                    },
-                    onSelectionChanged: (selection) {
-                      onScrubModeChanged(selection.first);
-                    },
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<PlayerScrubberMode>(
+                      key: const Key('player_scrubber_mode'),
+                      segments: <ButtonSegment<PlayerScrubberMode>>[
+                        ButtonSegment<PlayerScrubberMode>(
+                          value: PlayerScrubberMode.book,
+                          label: Text(l10n.playerScrubBook),
+                        ),
+                        ButtonSegment<PlayerScrubberMode>(
+                          value: PlayerScrubberMode.chapter,
+                          enabled: chapter != null,
+                          label: Text(l10n.playerScrubChapter),
+                        ),
+                      ],
+                      selected: <PlayerScrubberMode>{
+                        if (hasChapterSpan)
+                          PlayerScrubberMode.chapter
+                        else
+                          PlayerScrubberMode.book,
+                      },
+                      onSelectionChanged: (selection) {
+                        onScrubModeChanged(selection.first);
+                      },
+                    ),
                   ),
                 ),
-                Slider(
-                  key: const Key('player_timeline_slider'),
-                  value: activeRatio,
-                  onChanged: onScrubChanged,
-                  onChangeEnd: (value) {
-                    onScrubCommitted(value, rangeStartSec, rangeSpanSec);
-                  },
+                Semantics(
+                  label: hasChapterSpan
+                      ? l10n.playerScrubChapter
+                      : l10n.playerScrubBook,
+                  child: Slider(
+                    key: const Key('player_timeline_slider'),
+                    value: activeRatio,
+                    semanticFormatterCallback: (value) =>
+                        DurationFormatter.formatTimestamp(value * rangeSpanSec),
+                    onChanged: onScrubChanged,
+                    onChangeEnd: (value) {
+                      onScrubCommitted(value, rangeStartSec, rangeSpanSec);
+                    },
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        DurationFormatter.formatTimestamp(displayElapsedSec),
-                        key: const Key('player_elapsed_text'),
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: tokens.subtleMetaText,
+                      Flexible(
+                        child: Text(
+                          DurationFormatter.formatTimestamp(displayElapsedSec),
+                          key: const Key('player_elapsed_text'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: tokens.subtleMetaText,
+                          ),
                         ),
                       ),
-                      Text(
-                        remainingLabel,
-                        key: const Key('player_remaining_text'),
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: tokens.subtleMetaText,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          remainingLabel,
+                          key: const Key('player_remaining_text'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: tokens.subtleMetaText,
+                          ),
                         ),
                       ),
                     ],
@@ -444,20 +463,28 @@ class _ActivePlayerBody extends StatelessWidget {
                     SizedBox(
                       width: 68,
                       height: 68,
-                      child: FilledButton(
-                        key: const Key('player_play_pause_button'),
-                        style: FilledButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: EdgeInsets.zero,
-                        ),
-                        onPressed: () {
-                          unawaited(controller.togglePlayPause());
-                        },
-                        child: Icon(
-                          controller.isPlaying
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
-                          size: 38,
+                      child: Tooltip(
+                        message: controller.isPlaying
+                            ? l10n.playerPause
+                            : l10n.playerPlay,
+                        child: FilledButton(
+                          key: const Key('player_play_pause_button'),
+                          style: FilledButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: EdgeInsets.zero,
+                          ),
+                          onPressed: () {
+                            unawaited(controller.togglePlayPause());
+                          },
+                          child: Icon(
+                            controller.isPlaying
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            size: 38,
+                            semanticLabel: controller.isPlaying
+                                ? l10n.playerPause
+                                : l10n.playerPlay,
+                          ),
                         ),
                       ),
                     ),
