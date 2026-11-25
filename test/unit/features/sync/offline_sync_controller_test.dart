@@ -19,6 +19,19 @@ import '../../../fakes/in_memory_secure_storage_service.dart';
 import '../../../fakes/mock_abs_server.dart';
 
 void main() {
+  Future<void> waitUntil(
+    bool Function() predicate, {
+    Duration timeout = const Duration(seconds: 5),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (!predicate()) {
+      if (DateTime.now().isAfter(deadline)) {
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 15));
+    }
+  }
+
   group('OfflineSyncController', () {
     late MockAbsServer server;
     late AppDatabase db;
@@ -137,13 +150,15 @@ void main() {
           timeSec: 120,
         );
 
-        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await waitUntil(() => syncController.pendingCount == 3);
         // 1 coalesced progress + 1 bookmarkCreate + 1 bookmarkDelete = 3.
         check(syncController.pendingCount).equals(3);
 
         // Transitions offline -> wifi triggers automatic flush.
         connectivity.setStatus(NetworkConnectionType.wifi);
-        await Future<void>.delayed(const Duration(milliseconds: 120));
+        await waitUntil(
+          () => syncController.pendingCount == 0 && !syncController.isFlushing,
+        );
 
         check(syncController.pendingCount).equals(0);
         check(server.patchedProgress.length).equals(1);
@@ -185,14 +200,14 @@ void main() {
             ),
           ),
         ]);
-        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await waitUntil(() => syncController.hasConflicts);
         check(syncController.hasConflicts).isTrue;
 
         await syncController.resolveConflict(
           itemId: 'item-1',
           choice: ConflictResolutionChoice.keepDevice,
         );
-        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await waitUntil(() => !syncController.hasConflicts);
         check(syncController.hasConflicts).isFalse;
         check(server.patchedProgress.last['currentTime']).equals(850);
 
@@ -248,7 +263,9 @@ void main() {
       // Simulate one transient 503 failure before succeeding.
       server.failNextSyncCount = 1;
       connectivity.setStatus(NetworkConnectionType.wifi);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await waitUntil(
+        () => server.failNextSyncCount == 0 && !syncController.isFlushing,
+      );
 
       final failedRows = await db.getPendingSyncMutations('srv-1');
       check(failedRows.length).equals(1);
@@ -277,7 +294,9 @@ void main() {
         isFinished: false,
       );
       await syncController.flushPendingMutations();
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await waitUntil(
+        () => syncController.pendingCount == 0 && !syncController.isFlushing,
+      );
       check(server.patchedProgress.length).equals(1);
       check(server.patchedProgress.first['currentTime']).equals(600);
       check(syncController.pendingCount).equals(0);

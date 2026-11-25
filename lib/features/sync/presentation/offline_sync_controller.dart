@@ -206,8 +206,10 @@ class OfflineSyncController extends ChangeNotifier {
         }
         try {
           await _processMutation(session.serverId, session.baseUrl, mutation);
+          if (_disposed) break;
           await _database.deleteSyncMutation(mutation.id);
         } on Object catch (err, stackTrace) {
+          if (_disposed) break;
           final backoff = retryBackoffForAttempt(mutation.retryCount);
           _logger.warning(
             'Failed flushing ${mutation.mutationType} mutation '
