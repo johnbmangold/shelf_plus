@@ -90,7 +90,7 @@ class FakeLibraryRepository implements LibraryRepository {
   }
 
   @override
-  Stream<BookDetail?> watchBookDetail(String serverId, String itemId) {
+  Stream<BookDetail?> watchBookDetail(String serverId, String itemId) async* {
     BookDetail? buildDetail(List<BookSummary> list) {
       for (final book in list) {
         if (book.id == itemId) {
@@ -104,13 +104,10 @@ class FakeLibraryRepository implements LibraryRepository {
       return null;
     }
 
-    return Stream<BookDetail?>.multi((controller) {
-      controller.add(buildDetail(_books));
-      final sub = _booksController.stream.listen(
-        (list) => controller.add(buildDetail(list)),
-      );
-      controller.onCancel = sub.cancel;
-    });
+    yield buildDetail(_books);
+    await for (final list in _booksController.stream) {
+      yield buildDetail(list);
+    }
   }
 
   @override

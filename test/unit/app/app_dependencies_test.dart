@@ -6,6 +6,7 @@ import 'package:shelf_plus/app/flavor_config.dart';
 import 'package:shelf_plus/core/database/app_database.dart';
 import 'package:shelf_plus/core/theme/dynamic_cover_theme_service.dart';
 
+import '../../fakes/fake_connectivity_service.dart';
 import '../../fakes/in_memory_secure_storage_service.dart';
 
 void main() {
@@ -15,6 +16,7 @@ void main() {
         flavorConfig: const FlavorConfig.dev(),
         database: AppDatabase.inMemory(),
         secureStorage: InMemorySecureStorageService(),
+        connectivityService: FakeConnectivityService(),
         useGoogleFonts: false,
       );
 

@@ -117,7 +117,11 @@ void main() {
             .isEmpty;
 
         // Play downloaded book offline and confirm Downloaded badge appears.
+        await tester.ensureVisible(
+          find.byKey(const Key('download_play_item-1')),
+        );
         await tester.tap(find.byKey(const Key('download_play_item-1')));
+        await tester.pump(const Duration(milliseconds: 50));
         await tester.pumpAndSettle();
         check(find.byType(FullPlayerScreen).evaluate().length).equals(1);
         check(find.text('Downloaded').evaluate().length).equals(1);
@@ -129,6 +133,10 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(
           find.byKey(const Key('confirm_delete_download_item-1')),
+        );
+        await tester.pumpAndSettle();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
         );
         await tester.pumpAndSettle();
 
