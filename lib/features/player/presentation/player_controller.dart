@@ -289,7 +289,14 @@ class PlayerController extends ChangeNotifier {
         book.id,
       );
       if (localTracks != null && localTracks.isNotEmpty) {
-        final totalLocalDur = localTracks.fold<double>(
+        final orderedLocalTracks = List<DownloadedTrack>.from(localTracks)
+          ..sort((a, b) {
+            final offsetCmp = a.startOffsetSec.compareTo(b.startOffsetSec);
+            return offsetCmp != 0
+                ? offsetCmp
+                : a.trackIndex.compareTo(b.trackIndex);
+          });
+        final totalLocalDur = orderedLocalTracks.fold<double>(
           0,
           (sum, t) => sum + t.durationSec,
         );
@@ -303,38 +310,37 @@ class PlayerController extends ChangeNotifier {
           currentTimeSec: initialResumeSec,
           durationSec: totalLocalDur > 0 ? totalLocalDur : book.durationSec,
           audioTracks: <AbsAudioTrackDto>[
-            for (final t in localTracks)
+            for (var i = 0; i < orderedLocalTracks.length; i++)
               AbsAudioTrackDto(
-                index: t.trackIndex,
-                startOffsetSec: t.startOffsetSec,
-                durationSec: t.durationSec,
-                contentUrl: Uri.file(t.localPath).toString(),
-                title: t.title,
+                index: i,
+                startOffsetSec: orderedLocalTracks[i].startOffsetSec,
+                durationSec: orderedLocalTracks[i].durationSec,
+                contentUrl: Uri.file(orderedLocalTracks[i].localPath)
+                    .toString(),
+                title: orderedLocalTracks[i].title,
               ),
           ],
         );
-        final segments = localTracks
-            .map(
-              (t) => TrackSegment(
-                index: t.trackIndex,
-                startOffsetSec: t.startOffsetSec,
-                durationSec: t.durationSec,
-              ),
-            )
-            .toList(growable: false);
+        final segments = <TrackSegment>[
+          for (var i = 0; i < orderedLocalTracks.length; i++)
+            TrackSegment(
+              index: i,
+              startOffsetSec: orderedLocalTracks[i].startOffsetSec,
+              durationSec: orderedLocalTracks[i].durationSec,
+            ),
+        ];
         final mapper = BookTimelineMapper(segments);
         final target = mapper.toTrackPosition(initialResumeSec);
-        final engineTracks = localTracks
-            .map(
-              (t) => AudioEngineTrack(
-                id: 'local_${book.id}_${t.trackIndex}',
-                uri: Uri.file(t.localPath),
-                startOffsetSec: t.startOffsetSec,
-                durationSec: t.durationSec,
-                title: t.title,
-              ),
-            )
-            .toList(growable: false);
+        final engineTracks = <AudioEngineTrack>[
+          for (var i = 0; i < orderedLocalTracks.length; i++)
+            AudioEngineTrack(
+              id: 'local_${book.id}_$i',
+              uri: Uri.file(orderedLocalTracks[i].localPath),
+              startOffsetSec: orderedLocalTracks[i].startOffsetSec,
+              durationSec: orderedLocalTracks[i].durationSec,
+              title: orderedLocalTracks[i].title,
+            ),
+        ];
 
         await _engine.loadBook(
           metadata: AudioBookMetadata(
@@ -409,6 +415,7 @@ class PlayerController extends ChangeNotifier {
           itemId: book.id,
           deviceId: deviceId,
           forceDirectPlay: false,
+          forceTranscode: true,
         );
         await _loadSessionIntoEngine(
           playbackSession: playbackSession,
@@ -465,30 +472,35 @@ class PlayerController extends ChangeNotifier {
     required double startPositionSec,
   }) async {
     final normalizedBase = AbsUrlBuilder.normalizeBaseUrl(baseUrl);
-    final segments = playbackSession.audioTracks
-        .map(
-          (t) => TrackSegment(
-            index: t.index,
-            startOffsetSec: t.startOffsetSec,
-            durationSec: t.durationSec,
-          ),
-        )
-        .toList(growable: false);
+    final orderedTracks =
+        List<AbsAudioTrackDto>.from(playbackSession.audioTracks)..sort((a, b) {
+          final offsetCmp = a.startOffsetSec.compareTo(b.startOffsetSec);
+          return offsetCmp != 0 ? offsetCmp : a.index.compareTo(b.index);
+        });
+    final segments = <TrackSegment>[
+      for (var i = 0; i < orderedTracks.length; i++)
+        TrackSegment(
+          index: i,
+          startOffsetSec: orderedTracks[i].startOffsetSec,
+          durationSec: orderedTracks[i].durationSec,
+        ),
+    ];
     final mapper = BookTimelineMapper(segments);
     final target = mapper.toTrackPosition(startPositionSec);
 
-    final tracks = playbackSession.audioTracks
-        .map(
-          (t) => AudioEngineTrack(
-            id: '${playbackSession.sessionId}_${t.index}',
-            uri: Uri.parse(AbsUrlBuilder.resolve(normalizedBase, t.contentUrl)),
-            startOffsetSec: t.startOffsetSec,
-            durationSec: t.durationSec,
-            title: t.title,
-            headers: headers,
+    final tracks = <AudioEngineTrack>[
+      for (var i = 0; i < orderedTracks.length; i++)
+        AudioEngineTrack(
+          id: '${playbackSession.sessionId}_$i',
+          uri: Uri.parse(
+            AbsUrlBuilder.resolve(normalizedBase, orderedTracks[i].contentUrl),
           ),
-        )
-        .toList(growable: false);
+          startOffsetSec: orderedTracks[i].startOffsetSec,
+          durationSec: orderedTracks[i].durationSec,
+          title: orderedTracks[i].title,
+          headers: headers,
+        ),
+    ];
 
     await _engine.loadBook(
       metadata: AudioBookMetadata(

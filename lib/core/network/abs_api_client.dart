@@ -423,6 +423,7 @@ class AbsApiClient {
     required String itemId,
     required String deviceId,
     bool forceDirectPlay = true,
+    bool forceTranscode = false,
   }) async {
     final normalized = _normalizeOrThrow(baseUrl);
     final url = AbsUrlBuilder.resolve(normalized, '/api/items/$itemId/play');
@@ -445,6 +446,7 @@ class AbsApiClient {
             'audio/x-m4b',
           ],
           'forceDirectPlay': forceDirectPlay,
+          'forceTranscode': forceTranscode,
           'mediaPlayer': 'just_audio',
         },
       );

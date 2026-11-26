@@ -388,9 +388,10 @@ class MockAbsServer {
           : jsonDecode(bodyText) as Map<String, dynamic>;
       playRequests.add(decoded);
       final forceDirect = decoded['forceDirectPlay'] as bool? ?? true;
+      final forceTranscode = decoded['forceTranscode'] as bool? ?? false;
       _sessionCounter++;
       final sessionId = 'session-$_sessionCounter';
-      if (forceDirect) {
+      if (forceDirect && !forceTranscode) {
         return _jsonResponse(200, <String, Object?>{
           'id': sessionId,
           'libraryItemId': itemId,
@@ -400,7 +401,7 @@ class MockAbsServer {
           'duration': 3600,
           'audioTracks': <Object>[
             <String, Object?>{
-              'index': 0,
+              'index': 1,
               'startOffset': 0,
               'duration': 1800,
               'title': 'Part 1',
@@ -408,7 +409,7 @@ class MockAbsServer {
               'mimeType': 'audio/mp4',
             },
             <String, Object?>{
-              'index': 1,
+              'index': 2,
               'startOffset': 1800,
               'duration': 1800,
               'title': 'Part 2',
@@ -427,7 +428,7 @@ class MockAbsServer {
         'duration': 3600,
         'audioTracks': <Object>[
           <String, Object?>{
-            'index': 0,
+            'index': 1,
             'startOffset': 0,
             'duration': 3600,
             'title': 'HLS Stream',

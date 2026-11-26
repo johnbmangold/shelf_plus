@@ -139,13 +139,37 @@ void main() {
 
       check(server.playRequests.length).equals(2);
       check(server.playRequests.first['forceDirectPlay']).equals(true);
+      check(server.playRequests.first['forceTranscode']).equals(false);
       check(server.playRequests.last['forceDirectPlay']).equals(false);
+      check(server.playRequests.last['forceTranscode']).equals(true);
       check(server.closeRequests.length).equals(1);
       check(controller.playMethod).equals(AbsPlayMethod.transcode);
       check(controller.isPlaying).isTrue;
       check(controller.activeSessionId).equals('session-2');
       check(controller.positionSec).equals(2000);
       check(controller.currentChapterIndex).equals(1);
+    });
+
+    test('normalizes 1-based server track indices to 0-based engine indices '
+        'when resuming across tracks', () async {
+      await controller.playBook(
+        AbsLibraryFixtures.bookOne,
+        chapters: chapters,
+        startPositionSec: 2000,
+      );
+
+      check(engine.loadedInitialIndices).deepEquals(<int>[1]);
+      check(controller.positionSec).equals(2000);
+      check(controller.currentChapterIndex).equals(1);
+
+      await controller.playBook(
+        AbsLibraryFixtures.bookOne,
+        chapters: chapters,
+        startPositionSec: 120,
+      );
+      check(engine.loadedInitialIndices).deepEquals(<int>[1, 0]);
+      check(controller.positionSec).equals(120);
+      check(controller.currentChapterIndex).equals(0);
     });
 
     test('applies smart rewind after pause, syncs progress, and manages '

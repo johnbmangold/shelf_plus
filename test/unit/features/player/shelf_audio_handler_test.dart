@@ -148,5 +148,34 @@ void main() {
       await subNext.cancel();
       await subPrev.cancel();
     });
+
+    test(
+      'replaceBackend switches control delegation and stream updates',
+      () async {
+        final replacement = _FakeShelfAudioBackend();
+        addTearDown(replacement.dispose);
+
+        await handler.replaceBackend(replacement);
+        await handler.play();
+        check(backend.playCalls).equals(0);
+        check(replacement.playCalls).equals(1);
+        check(handler.playbackState.value.playing).isTrue;
+
+        // Old backend events should be ignored after replacement.
+        backend
+          ..processingState = ProcessingState.completed
+          ..emitEvent(currentIndex: 99);
+        await Future<void>.delayed(Duration.zero);
+        check(handler.playbackState.value.queueIndex).isNull;
+
+        replacement
+          ..processingState = ProcessingState.ready
+          ..emitEvent(currentIndex: 0);
+        await Future<void>.delayed(Duration.zero);
+        check(handler.playbackState.value.processingState)
+            .equals(AudioProcessingState.ready);
+        check(handler.playbackState.value.queueIndex).equals(0);
+      },
+    );
   });
 }

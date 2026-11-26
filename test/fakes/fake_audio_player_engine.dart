@@ -27,6 +27,9 @@ class FakeAudioPlayerEngine implements AudioPlayerEngine {
   final List<List<AudioEngineTrack>> loadedTrackLists =
       <List<AudioEngineTrack>>[];
 
+  /// Recorded `initialTrackIndex` arguments passed to [loadBook].
+  final List<int> loadedInitialIndices = <int>[];
+
   /// Number of `play()` invocations.
   int playCount = 0;
 
@@ -62,7 +65,13 @@ class FakeAudioPlayerEngine implements AudioPlayerEngine {
     required int initialTrackIndex,
     required Duration initialTrackPosition,
   }) async {
+    if (tracks.isEmpty ||
+        initialTrackIndex < 0 ||
+        initialTrackIndex >= tracks.length) {
+      throw RangeError.index(initialTrackIndex, tracks, 'initialTrackIndex');
+    }
     loadedTrackLists.add(tracks);
+    loadedInitialIndices.add(initialTrackIndex);
     final isHls = tracks.any(
       (t) => t.uri.path.contains('hls') || t.uri.path.endsWith('.m3u8'),
     );

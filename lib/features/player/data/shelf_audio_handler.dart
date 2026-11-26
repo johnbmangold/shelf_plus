@@ -105,7 +105,7 @@ class ShelfAudioHandler extends BaseAudioHandler with SeekHandler {
     _eventSub = _backend.playbackEventStream.listen(_broadcastState);
   }
 
-  final ShelfAudioBackend _backend;
+  ShelfAudioBackend _backend;
 
   /// Interval jumped backward on notification/headset rewind.
   final Duration rewindInterval;
@@ -117,13 +117,21 @@ class ShelfAudioHandler extends BaseAudioHandler with SeekHandler {
       StreamController<void>.broadcast();
   final StreamController<void> _skipPreviousController =
       StreamController<void>.broadcast();
-  late final StreamSubscription<PlaybackEvent> _eventSub;
+  StreamSubscription<PlaybackEvent>? _eventSub;
 
   /// Stream emitted when system media controls invoke skip-to-next.
   Stream<void> get onSkipNextRequest => _skipNextController.stream;
 
   /// Stream emitted when system media controls invoke skip-to-previous.
   Stream<void> get onSkipPreviousRequest => _skipPreviousController.stream;
+
+  /// Replaces the underlying [ShelfAudioBackend] and re-subscribes to its
+  /// playback event stream.
+  Future<void> replaceBackend(ShelfAudioBackend backend) async {
+    await _eventSub?.cancel();
+    _backend = backend;
+    _eventSub = _backend.playbackEventStream.listen(_broadcastState);
+  }
 
   /// Updates the active OS media notification metadata.
   void setNowPlaying(MediaItem item) {
@@ -214,7 +222,7 @@ class ShelfAudioHandler extends BaseAudioHandler with SeekHandler {
 
   /// Cancels playback listeners and closes skip-action streams.
   Future<void> dispose() async {
-    await _eventSub.cancel();
+    await _eventSub?.cancel();
     await _skipNextController.close();
     await _skipPreviousController.close();
   }

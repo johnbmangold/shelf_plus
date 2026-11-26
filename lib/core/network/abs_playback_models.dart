@@ -54,7 +54,7 @@ class AbsAudioTrackDto {
     );
   }
 
-  /// Zero-based track index within the book's ordered track list.
+  /// Track index reported by Audiobookshelf (typically 1-based).
   final int index;
 
   /// Cumulative start offset of this track within the book timeline (seconds).

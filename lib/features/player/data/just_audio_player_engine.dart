@@ -26,6 +26,7 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
   ShelfAudioHandler? _handler;
   Future<void>? _initFuture;
   bool _disposed = false;
+  bool _needsPlayerReset = false;
   bool _resumeAfterInterruption = false;
 
   AudioEngineState _state = const AudioEngineState();
@@ -35,7 +36,9 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
       StreamController<void>.broadcast();
   final StreamController<void> _skipPreviousController =
       StreamController<void>.broadcast();
-  final List<StreamSubscription<Object?>> _subscriptions =
+  final List<StreamSubscription<Object?>> _sessionAndHandlerSubscriptions =
+      <StreamSubscription<Object?>>[];
+  final List<StreamSubscription<Object?>> _playerSubscriptions =
       <StreamSubscription<Object?>>[];
 
   @override
@@ -82,24 +85,26 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
     _player = player;
     _handler = handler;
 
-    _subscriptions.addAll(<StreamSubscription<Object?>>[
+    _sessionAndHandlerSubscriptions.addAll(<StreamSubscription<Object?>>[
       session.becomingNoisyEventStream.listen((_) {
         unawaited(pause());
       }),
       session.interruptionEventStream.listen((event) {
+        final activePlayer = _player;
+        if (activePlayer == null) return;
         if (event.begin) {
           switch (event.type) {
             case AudioInterruptionType.duck:
-              unawaited(player.setVolume(0.3));
+              unawaited(activePlayer.setVolume(0.3));
             case AudioInterruptionType.pause:
             case AudioInterruptionType.unknown:
-              _resumeAfterInterruption = player.playing;
+              _resumeAfterInterruption = activePlayer.playing;
               unawaited(pause());
           }
         } else {
           switch (event.type) {
             case AudioInterruptionType.duck:
-              unawaited(player.setVolume(_state.volume));
+              unawaited(activePlayer.setVolume(_state.volume));
             case AudioInterruptionType.pause:
               if (_resumeAfterInterruption) {
                 _resumeAfterInterruption = false;
@@ -110,6 +115,23 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
           }
         }
       }),
+      handler.onSkipNextRequest.listen((_) {
+        if (!_skipNextController.isClosed) {
+          _skipNextController.add(null);
+        }
+      }),
+      handler.onSkipPreviousRequest.listen((_) {
+        if (!_skipPreviousController.isClosed) {
+          _skipPreviousController.add(null);
+        }
+      }),
+    ]);
+
+    _bindPlayerStreams(player);
+  }
+
+  void _bindPlayerStreams(AudioPlayer player) {
+    _playerSubscriptions.addAll(<StreamSubscription<Object?>>[
       player.playerStateStream.listen((ps) {
         final mapped = switch (ps.processingState) {
           ProcessingState.idle => AudioPlaybackStatus.idle,
@@ -146,17 +168,30 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
       player.volumeStream.listen((vol) {
         _emitState(_state.copyWith(volume: vol));
       }),
-      handler.onSkipNextRequest.listen((_) {
-        if (!_skipNextController.isClosed) {
-          _skipNextController.add(null);
-        }
-      }),
-      handler.onSkipPreviousRequest.listen((_) {
-        if (!_skipPreviousController.isClosed) {
-          _skipPreviousController.add(null);
-        }
-      }),
     ]);
+  }
+
+  Future<void> _resetPlayer() async {
+    for (final sub in _playerSubscriptions) {
+      await sub.cancel();
+    }
+    _playerSubscriptions.clear();
+    final oldPlayer = _player;
+    _player = null;
+    if (oldPlayer != null) {
+      try {
+        await oldPlayer.dispose();
+      } on Object catch (err) {
+        _logger.fine(
+          'Ignoring dispose error on wedged AudioPlayer: $err',
+          scope: 'player',
+        );
+      }
+    }
+    final nextPlayer = AudioPlayer();
+    _player = nextPlayer;
+    await _handler?.replaceBackend(JustAudioShelfBackend(nextPlayer));
+    _bindPlayerStreams(nextPlayer);
   }
 
   @override
@@ -166,7 +201,14 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
     required int initialTrackIndex,
     required Duration initialTrackPosition,
   }) async {
+    if (tracks.isEmpty) {
+      throw StateError('Cannot load an empty track list.');
+    }
     await _ensureInitialized();
+    if (_needsPlayerReset) {
+      _needsPlayerReset = false;
+      await _resetPlayer();
+    }
     final player = _player;
     final handler = _handler;
     if (player == null || handler == null) return;
@@ -192,22 +234,27 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
           ),
         )
         .toList(growable: false);
+    final safeIndex = initialTrackIndex.clamp(0, sources.length - 1);
+    final safePosition = initialTrackPosition.isNegative
+        ? Duration.zero
+        : initialTrackPosition;
 
     try {
       _emitState(
         _state.copyWith(
           status: AudioPlaybackStatus.loading,
-          trackIndex: initialTrackIndex,
-          trackPosition: initialTrackPosition,
+          trackIndex: safeIndex,
+          trackPosition: safePosition,
           clearError: true,
         ),
       );
       await player.setAudioSources(
         sources,
-        initialIndex: initialTrackIndex,
-        initialPosition: initialTrackPosition,
+        initialIndex: safeIndex,
+        initialPosition: safePosition,
       );
     } catch (err, stackTrace) {
+      _needsPlayerReset = true;
       _logger.warning(
         'Failed loading audio sources for ${metadata.itemId}',
         scope: 'player',
@@ -288,10 +335,14 @@ class JustAudioPlayerEngine implements AudioPlayerEngine {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
-    for (final sub in _subscriptions) {
+    for (final sub in _playerSubscriptions) {
       await sub.cancel();
     }
-    _subscriptions.clear();
+    _playerSubscriptions.clear();
+    for (final sub in _sessionAndHandlerSubscriptions) {
+      await sub.cancel();
+    }
+    _sessionAndHandlerSubscriptions.clear();
     await _handler?.dispose();
     await _player?.dispose();
     await _stateController.close();
