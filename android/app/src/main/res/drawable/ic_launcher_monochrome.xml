@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Upright acoustic spine 1 (shortest) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M33.7,47.0A2.7,2.7 0 0,1 36.4,49.7L36.4,66.3A2.7,2.7 0 0,1 31.0,66.3L31.0,49.7A2.7,2.7 0 0,1 33.7,47.0Z" />
+    <!-- Upright acoustic spine 2 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M41.9,41.0A2.7,2.7 0 0,1 44.6,43.7L44.6,66.3A2.7,2.7 0 0,1 39.2,66.3L39.2,43.7A2.7,2.7 0 0,1 41.9,41.0Z" />
+    <!-- Upright acoustic spine 3 (tallest center) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M50.1,35.0A2.7,2.7 0 0,1 52.8,37.7L52.8,66.3A2.7,2.7 0 0,1 47.4,66.3L47.4,37.7A2.7,2.7 0 0,1 50.1,35.0Z" />
+    <!-- Upright acoustic spine 4 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M58.3,41.0A2.7,2.7 0 0,1 61.0,43.7L61.0,66.3A2.7,2.7 0 0,1 55.6,66.3L55.6,43.7A2.7,2.7 0 0,1 58.3,41.0Z" />
+    <!-- Leaning acoustic spine 5 -->
+    <group
+        android:pivotX="67.5"
+        android:pivotY="56.5"
+        android:rotation="-17">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M67.5,44.5A2.7,2.7 0 0,1 70.2,47.2L70.2,65.8A2.7,2.7 0 0,1 64.8,65.8L64.8,47.2A2.7,2.7 0 0,1 67.5,44.5Z" />
+    </group>
+    <!-- Upper-right '+' accent -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M68.6,34.0H70.4V36.6H73.0V38.4H70.4V41.0H68.6V38.4H66.0V36.6H68.6Z" />
+</vector>
