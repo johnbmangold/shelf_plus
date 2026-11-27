@@ -26,7 +26,7 @@ flutter test --coverage
 
 ## Android Internal Deployment
 
-The [`.github/workflows/deploy_android_internal.yml`](.github/workflows/deploy_android_internal.yml) workflow builds the signed `prod` `.aab` and uploads it to the Google Play Console `internal` testing track on pushes to `main` or via manual `workflow_dispatch`. It automatically sets `--build-number` from `github.run_number` so each run produces a monotonically increasing `versionCode`.
+The `deploy_android_internal` job in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) builds the signed `prod` `.aab` and uploads it to the Google Play Console `internal` testing track after `analyze_and_test` passes on pushes to `main` or via manual `workflow_dispatch`. It automatically sets `--build-number` from `github.run_number` so each run produces a monotonically increasing `versionCode`.
 
 Configure the following GitHub Actions repository secrets before running the workflow:
 

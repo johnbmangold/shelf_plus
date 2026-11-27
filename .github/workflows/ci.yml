@@ -4,6 +4,19 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      release_status:
+        description: "Google Play release status"
+        required: false
+        type: choice
+        default: completed
+        options:
+          - completed
+          - draft
+
+permissions:
+  contents: read
 
 jobs:
   analyze_and_test:
@@ -131,3 +144,99 @@ jobs:
 
       - name: Build prod iOS app
         run: flutter build ios --debug --no-codesign --flavor prod -t lib/main_prod.dart
+
+  deploy_android_internal:
+    name: Deploy Android Internal
+    runs-on: ubuntu-latest
+    needs: analyze_and_test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    concurrency:
+      group: deploy-android-internal
+      cancel-in-progress: false
+    steps:
+      - name: Verify required secrets
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          missing=()
+          for var in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD \
+            GOOGLE_PLAY_SERVICE_ACCOUNT_JSON; do
+            if [ -z "${!var}" ]; then
+              missing+=("$var")
+            fi
+          done
+          if [ "${#missing[@]}" -ne 0 ]; then
+            echo "Missing required GitHub Actions secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.50.1"
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies, l10n, and codegen
+        run: >-
+          flutter pub get &&
+          flutter gen-l10n &&
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Configure Android signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n' | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
+          {
+            printf 'storePassword=%s\n' "$ANDROID_KEYSTORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'storeFile=%s\n' "$RUNNER_TEMP/upload-keystore.jks"
+          } > android/key.properties
+
+      - name: Build prod release AAB
+        run: flutter build appbundle --release --flavor prod -t lib/main_prod.dart --build-number "${{ github.run_number }}"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-release-${{ github.run_number }}
+          path: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          retention-days: 14
+
+      - name: Upload to Google Play Console (internal track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.shcworks.shelfplus
+          releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          tracks: internal
+          status: ${{ inputs.release_status || 'completed' }}
+
+      - name: Clean up signing files
+        if: always()
+        shell: bash
+        run: rm -f android/key.properties "$RUNNER_TEMP/upload-keystore.jks"
